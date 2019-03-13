@@ -2,27 +2,35 @@ version: '3'
 
 services:
 
-
   broker:
     image: eclipse-mosquitto
     ports:
       - 1883:1883
 #     - 9001:9001
 #   volumes:
-#     - broker_config:/mosquitto/config/ 
+#     - broker_config:/mosquitto/config/
     restart: always
-
 
   relayer:
-    build: ./modules/relayer_module
+    build: ./modules/relayer
     ports:
-      - 80:8080 
+      - 80:8080
     depends_on:
       - broker
+      - mongodb
     restart: always
 
-
-
+  mongodb:
+    image: mongo:latest
+    container_name: "mongodb"
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./data/db:/data/db
+    ports:
+      - 27017:27017
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
 
   # database:
   #   image: mysql:5.7
@@ -46,7 +54,7 @@ services:
   #   ports:
   #     - 80:80
   #   environment:
-  #     - PMA_ARBITRARY=0                         # connection to any server 
+  #     - PMA_ARBITRARY=0                         # connection to any server
   #     - PMA_HOST=database
   #     - PMA_PORT=3306
   #   depends_on:
