@@ -5,7 +5,7 @@ import random
 app = Flask(__name__)
 
 broker_host    = "broker"
-broker_port      = 1883 
+broker_port      = 1883
 
 broker = paho.Client("publisher{0}".format(random.randint(0,99999999)) )
 broker.connect(broker_host,broker_port)
@@ -25,10 +25,10 @@ def publish():
 	payload = message['payload']
 
 
-	broker.publish(topic,payload) 
+	broker.publish(topic,payload)
 
 	return 'Message published successfully'
 
 
 if __name__ == '__main__':
-	app.run(host="0.0.0.0", port=8080, debug=True)
+	app.run(host="0.0.0.0", port=8080)
