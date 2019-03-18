@@ -1,6 +1,7 @@
-python-dotenv
+#python-dotenv
 flask
 flask_restful
-Flask-MongoAlchemy
-flask-migrate
+#Flask-MongoAlchemy
+#flask-migrate
 paho-mqtt
+pymongo

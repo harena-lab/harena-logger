@@ -13,8 +13,18 @@ services:
 
   relayer:
     build: ./modules/relayer
+    environment:
+      - HARENA_LOGGER_BROKER_HOST=broker
+      - HARENA_LOGGER_BROKER_PORT=1883
+      - HARENA_LOGGER_FLASK_HOST=0.0.0.0
+      - HARENA_LOGGER_FLASK_PORT=5000
+      - HARENA_LOGGER_FLASK_DEBUG=False
+      - HARENA_LOGGER_MONGODB_HOST=mongodb
+      - HARENA_LOGGER_MONGODB_PORT=27017
+      - HARENA_LOGGER_MONGODB_DB=harena_logger
+      - HARENA_LOGGER_MONGODB_COLLECTION=executions
     ports:
-      - 80:8080
+      - 5000:5000
     depends_on:
       - broker
       - mongodb
@@ -27,10 +37,14 @@ services:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
     volumes:
-      - ./data/db:/data/db
+      - harena_logger_mongodb:/data/db
     ports:
       - 27017:27017
-    command: mongod --smallfiles --logpath=/dev/null # --quiet
+    # command: mongod --smallfiles --logpath=/dev/null # --quiet
+
+volumes:
+  harena_logger_mongodb:
+
 
   # database:
   #   image: mysql:5.7
