@@ -39,15 +39,13 @@ class HarenaMessageResource(Resource):
       broker_publishing_flag = self.broker.publish(topic,json.dumps(payload))
       mongodb_insertion_flag = self.mongodb_collection.insert(message)
 
-      print("broker_publishing_flag: {}, mongodb_insertion_flag: {}".format(broker_publishing_flag,mongodb_insertion_flag))
-
       return 'Message published successfully',201
     
-    
+
     def get(self):
       docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
 
-      items=[]
+      items = []
 
       for doc in docs:
         doc['_id'] = str(doc['_id'])
