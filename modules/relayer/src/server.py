@@ -16,7 +16,7 @@ class IndexResource(Resource):
     def get(self):
       message = {"message": "Welcome to the Harena Logger module",
                  "broker_status" : broker.__repr__(),
-                 "database_status":mongodb_client.server_info()
+                 "database_status":mongodb_client.server_info()['ok']
 
       }
       return message
