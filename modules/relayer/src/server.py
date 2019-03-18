@@ -10,13 +10,13 @@ import time
 
 class IndexResource(Resource):
 
-    def __init__(self,broker,):
+    def __init__(self,broker,mongodb_client):
       self.broker = broker
 
     def get(self):
       message = {"message": "Welcome to the Harena Logger module",
-                 "broker_type"   : "MQTT",
-                 "broker_status" : broker.__repr__()
+                 "broker_status" : broker.__repr__(),
+                 "database_status":mongodb_client.server_info()
 
       }
       return message
@@ -87,7 +87,7 @@ if __name__ == '__main__':
       broker.connect(config['broker_host'],config['broker_port'])  
       broker.reconnect_delay_set(min_delay=1, max_delay=20)
 
-      api.add_resource(IndexResource,         '/',       resource_class_args=[broker,mongodb_collection])
+      api.add_resource(IndexResource,         '/',       resource_class_args=[broker,mongodb_client])
       api.add_resource(HarenaMessageResource, '/message',resource_class_args=[broker,mongodb_collection])
 
       web_app.run(host=config['flask_host'], port=config['flask_port'],debug=config['flask_debug'])
