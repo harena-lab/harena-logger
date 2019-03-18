@@ -1,12 +1,12 @@
 import os
 import json
-from flask import Flask, request, jsonify
-from flask_restful import Resource, Api
 import paho.mqtt.client as paho
 import random
 import pymongo
 import time
-
+from flask import Flask, request, jsonify
+from flask_restful import Resource, Api
+from flask_cors import CORS
 
 class IndexResource(Resource):
 
@@ -64,6 +64,7 @@ class HarenaMessageResource(Resource):
 if __name__ == '__main__':
   
       web_app = Flask(__name__)
+      CORS(web_app)
       api     = Api(web_app)
 
       config     = {}
