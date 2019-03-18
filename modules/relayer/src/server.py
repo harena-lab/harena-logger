@@ -10,12 +10,14 @@ import time
 
 class IndexResource(Resource):
 
-    def __init__(self,broker):
+    def __init__(self,broker,):
       self.broker = broker
 
     def get(self):
-      message = {"message": "Harena Logger Relayer",
-                 "broker" : broker.__repr__()
+      message = {"message": "Welcome to the Harena Logger module",
+                 "broker_type"   : "MQTT",
+                 "broker_status" : broker.__repr__()
+
       }
       return message
 
@@ -26,7 +28,6 @@ class HarenaMessageResource(Resource):
     def __init__(self, broker, mongodb_collection):
       self.broker = broker
       self.mongodb_collection = mongodb_collection
-
 
     def post(self):
       message = request.get_json()
@@ -40,7 +41,6 @@ class HarenaMessageResource(Resource):
       mongodb_insertion_flag = self.mongodb_collection.insert(message)
 
       return 'Message published successfully',201
-    
 
     def get(self):
       docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
@@ -52,7 +52,6 @@ class HarenaMessageResource(Resource):
         items.append(doc)
 
       return jsonify({'execution_stream':items})
-
 
     def delete(self):
       self.mongodb_collection.delete_many({})
@@ -86,8 +85,9 @@ if __name__ == '__main__':
 
       broker = paho.Client("publisher{0}".format(random.randint(0,99999999)) )
       broker.connect(config['broker_host'],config['broker_port'])  
+      broker.reconnect_delay_set(min_delay=1, max_delay=20)
 
-      api.add_resource(IndexResource,         '/',       resource_class_args=[broker])
+      api.add_resource(IndexResource,         '/',       resource_class_args=[broker,mongodb_collection])
       api.add_resource(HarenaMessageResource, '/message',resource_class_args=[broker,mongodb_collection])
 
       web_app.run(host=config['flask_host'], port=config['flask_port'],debug=config['flask_debug'])
