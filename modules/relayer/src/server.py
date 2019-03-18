@@ -43,6 +43,7 @@ class HarenaMessageResource(Resource):
 
       return 'Message published successfully',201
     
+    
     def get(self):
       docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
 
@@ -53,6 +54,7 @@ class HarenaMessageResource(Resource):
         items.append(doc)
 
       return jsonify({'execution_stream':items})
+
 
     def delete(self):
       self.mongodb_collection.delete_many({})
