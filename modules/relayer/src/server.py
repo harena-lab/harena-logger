@@ -40,7 +40,10 @@ class HarenaMessageResource(Resource):
       broker_publishing_flag = self.broker.publish(topic,json.dumps(payload))
       mongodb_insertion_flag = self.mongodb_collection.insert(message)
 
-      return 'Message published successfully',201
+      data = {"message":'Message published successfully'}
+
+      return jsonify(data)
+
 
     def get(self):
       docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
@@ -56,7 +59,9 @@ class HarenaMessageResource(Resource):
     def delete(self):
       self.mongodb_collection.delete_many({})
 
-      return 'Messages in the execution stream deleted successfully'
+      data = {"message":'Messages in the execution stream deleted successfully'}
+
+      return jsonify(data)
 
 
 
