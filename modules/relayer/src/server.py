@@ -9,6 +9,7 @@ from flask_restful import Resource, Api
 from config import Config
 from flask_cors import CORS
 
+
 class IndexResource(Resource):
 
     def __init__(self,broker,mongodb_client):
@@ -21,7 +22,6 @@ class IndexResource(Resource):
 
       }
       return message
-
 
 
 class HarenaMessageResource(Resource):
@@ -41,10 +41,7 @@ class HarenaMessageResource(Resource):
       broker_publishing_flag = self.broker.publish(topic,json.dumps(payload))
       mongodb_insertion_flag = self.mongodb_collection.insert(message)
 
-      data = {"message":'Message published successfully'}
-
-      return jsonify(data)
-
+      return 'Message published successfully', 201
 
     def get(self):
       docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
@@ -60,11 +57,9 @@ class HarenaMessageResource(Resource):
     def delete(self):
       self.mongodb_collection.delete_many({})
 
-      data = {"message":'Messages in the execution stream deleted successfully'}
+       data = {"message":'Messages in the execution stream deleted successfully'}
 
-      return jsonify(data)
-
-
+       return jsonify(data)
 
 
 if __name__ == '__main__':
