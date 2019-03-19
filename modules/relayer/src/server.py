@@ -71,6 +71,7 @@ if __name__ == '__main__':
 
     web_app = Flask(__name__)
     web_app.config.from_object(Config)
+    CORS(web_app)
     api     = Api(web_app)
 
     mongodb_client     = pymongo.MongoClient("mongodb://{0}:{1}/"
