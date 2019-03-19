@@ -39,7 +39,7 @@ class HarenaMessageResource(Resource):
         message['timestamp'] = "{}".format(int(round(time.time() * 1000)))
 
         broker_publishing_flag = self.broker.publish(topic,json.dumps(payload))
-        mongodb_insertion_flag = self.mongodb_collection.insert(message)
+        mongodb_insertion_flag = self.mongodb_collection.insert_one(message)
 
         return 'Message published successfully', 201
 
