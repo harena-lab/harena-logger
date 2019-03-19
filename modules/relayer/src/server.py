@@ -27,39 +27,38 @@ class IndexResource(Resource):
 class HarenaMessageResource(Resource):
 
     def __init__(self, broker, mongodb_collection):
-      self.broker = broker
-      self.mongodb_collection = mongodb_collection
+        self.broker = broker
+        self.mongodb_collection = mongodb_collection
 
     def post(self):
-      message = request.get_json()
-      print(json.dumps(message))
-      topic   = message['topic']
-      payload = message['payload']
+        message = request.get_json()
+        print(json.dumps(message))
+        topic   = message['topic']
+        payload = message['payload']
 
-      message['timestamp'] = "{}".format(int(round(time.time() * 1000)))
+        message['timestamp'] = "{}".format(int(round(time.time() * 1000)))
 
-      broker_publishing_flag = self.broker.publish(topic,json.dumps(payload))
-      mongodb_insertion_flag = self.mongodb_collection.insert(message)
+        broker_publishing_flag = self.broker.publish(topic,json.dumps(payload))
+        mongodb_insertion_flag = self.mongodb_collection.insert(message)
 
-      return 'Message published successfully', 201
+        return 'Message published successfully', 201
 
     def get(self):
-      docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
+        docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
 
-      items = []
+        items = []
 
-      for doc in docs:
-        doc['_id'] = str(doc['_id'])
-        items.append(doc)
+        for doc in docs:
+            doc['_id'] = str(doc['_id'])
+            items.append(doc)
 
-      return jsonify({'execution_stream':items})
+        return jsonify({'execution_stream':items})
 
     def delete(self):
-      self.mongodb_collection.delete_many({})
+        self.mongodb_collection.delete_many({})
+        data = {"message":'Messages in the execution stream deleted successfully'}
 
-       data = {"message":'Messages in the execution stream deleted successfully'}
-
-       return jsonify(data)
+        return jsonify(data)
 
 
 if __name__ == '__main__':
