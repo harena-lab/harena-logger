@@ -1,6 +1,6 @@
 #python-dotenv
 flask
-flask_restful
+flask-restful
 #Flask-MongoAlchemy
 #flask-migrate
 paho-mqtt
