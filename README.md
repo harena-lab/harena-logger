@@ -85,25 +85,21 @@ flask run                              # running the application
 * paho-mqtt
 * pymongo
 
-<b><sup>3</sup></b> In *api mode*. Please refer to [this repository](https://github.com/adonisjs/adonis-api-app) for more details or take a look at the `-api-only` directive in the [AdonisJS installation guide](https://adonisjs.com/docs/4.1/installation#_installing_adonisjs).
-
-<b><sup>4</sup></b> Stored in the `src/adonisjs/package.json` file.
-
 ## Configuration
 
 ### Virtualenvs
 
-*HARENA_LOGGER_BROKER_HOST = mqtt host
-*HARENA_LOGGER_BROKER_PORT = mqtt host port
+* HARENA_LOGGER_BROKER_HOST = mqtt host
+* HARENA_LOGGER_BROKER_PORT = mqtt host port
 
-*HARENA_LOGGER_FLASK_HOST  = Flask host
-*HARENA_LOGGER_FLASK_PORT  = Flask port
-*HARENA_LOGGER_FLASK_DEBUG = Flask debug
+* HARENA_LOGGER_FLASK_HOST  = Flask host
+* HARENA_LOGGER_FLASK_PORT  = Flask port
+* HARENA_LOGGER_FLASK_DEBUG = Flask debug
 
-*HARENA_LOGGER_MONGODB_HOST = mongo host
-*HARENA_LOGGER_MONGODB_PORT = mongo port
-*HARENA_LOGGER_MONGODB_DB  = mongo database name
-*HARENA_LOGGER_MONGODB_COLLECTION = mongo current document
+* HARENA_LOGGER_MONGODB_HOST = mongo host
+* HARENA_LOGGER_MONGODB_PORT = mongo port
+* HARENA_LOGGER_MONGODB_DB  = mongo database name
+* HARENA_LOGGER_MONGODB_COLLECTION = mongo current document
 
 ## Contributing
 
