@@ -4,7 +4,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/datasci4health/harena-manager.svg?style=flat)](https://cloud.docker.com/u/datasci4health/repository/registry-1.docker.io/datasci4health/harena-manager)
 [![Docker Stars](https://img.shields.io/docker/stars/datasci4health/harena-manager.svg?style=flat)](https://cloud.docker.com/u/datasci4health/repository/registry-1.docker.io/datasci4health/harena-manager)
 
-# herena-manager
+# herena-logger
 
 [Harena](https://github.com/datasci4health/harena)'s API for managing users and clinical cases.
 
@@ -44,33 +44,25 @@ sudo docker-compose up
 
 //to do
 
+### Running as Docker containers - Linux´
+```bash
+sudo docker run datasci4health/harena-logger:latest
+```
+
 ### Running locally - Linux
 
 First, clone this repository and enter the folder:
 
 ```bash
-git clone https://github.com/datasci4health/harena-manager 
-cd harena-manager
+git clone https://github.com/datasci4health/harena-logger 
+cd harena-logger
 ```
-Then install the [adonis cli](https://adonisjs.com/docs/4.0/installation#_cli_tool) and other project dependencies<sup>1</sup>:
-
 ```bash
-cd src/adonisjs                      # entering the source folder
-sudo npm i npm                       # updating npm (just in case)
-sudo npm i -g @adonisjs/cli          # installing adonis cli
-npm install                          # installing dependencies based on the package.json file
-cp .env.example .env                 # creating the .env file that will be used by adonis
+cd modules/relayer                     # entering the source folder
+pip3 install -r requirements.txt       # installing requirements packages for python
+export FLASK_APP=server.py             # defining flask application
+flask run                              # running the application
 ``` 
-
-Edit the .env file with your own [configuration](#Configuration). Then, run adonis<sup>2</sup>:
-
-```bash
-adonis  serve --dev --debug  # adjust flags according to you needs
-```
-
-<b><sup>1</sup></b> Make sure you have **node.js** and **npm** already installed (see [system requirements](#system-requirements) for more details).
-
-<b><sup>2</sup></b> Run `adonis serve --help` to see alternative flag options.
 
 ### Running locally - Windows
 
@@ -87,27 +79,11 @@ adonis  serve --dev --debug  # adjust flags according to you needs
 
 ##### System dependencies
 
-* [node.js >= 8.0.0]()
-* [npm     >= 6.8.0]()
-* [mysql   >= 5.7]() or [postgresql >= 7.0.0]()
-
-
-##### NPM packages<sup>4</sup> 
-
-* [adonisjs 4.1.0](https://adonisjs.com/docs/4.1/i) <b><sup>3</sup></b>
-* [adonisjs/ace ^5.0.2]()
-* [adonisjs/bodyparser]()
-* [adonisjs/auth]()
-* [adonisjs/cors ^1.0.6]()
-* [adonisjs/fold ^4.0.8]()
-* [adonisjs/framework ^5.0.7]()
-* [adonisjs/ignitor ^2.0.6]()
-* [adonisjs/lucid ^5.0.4]()
-* [moment 2.22.2]()
-* [moment-timezone 0.5.21]()
-* [pg 7.4.3]() 
-* [mysql ^2.16.0]()
-
+* flask
+* flask-restful
+* flask-cors
+* paho-mqtt
+* pymongo
 
 <b><sup>3</sup></b> In *api mode*. Please refer to [this repository](https://github.com/adonisjs/adonis-api-app) for more details or take a look at the `-api-only` directive in the [AdonisJS installation guide](https://adonisjs.com/docs/4.1/installation#_installing_adonisjs).
 
@@ -115,28 +91,19 @@ adonis  serve --dev --debug  # adjust flags according to you needs
 
 ## Configuration
 
-### Virtualenvs: AdonisJS 
+### Virtualenvs
 
-* HOST= host ip/name
-* PORT= host port
-* NODE_ENV= dynamic behavior (production, development)
-* APP_URL= allowed incomming URLS (e.g., http://${HOST}:${PORT} )
-* CACHE_VIEWS= enable/disable caching (true || false)
-* APP_KEY= app private key
-* ENV_SILENT= enable/disable looking for a .env file (true || false)
-* HASH_DRIVER=bcrypt
-* MOMENT_LOCALE=pt-br
+*HARENA_LOGGER_BROKER_HOST = mqtt host
+*HARENA_LOGGER_BROKER_PORT = mqtt host port
 
-### Virtualenvs: Database
+*HARENA_LOGGER_FLASK_HOST  = Flask host
+*HARENA_LOGGER_FLASK_PORT  = Flask port
+*HARENA_LOGGER_FLASK_DEBUG = Flask debug
 
-* DB_CONNECTION= database (pg, maria, mysql, sqlite)
-* DB_HOST= host/ipname
-* DB_PORT= host port
-* DB_USER= username
-* DB_PASSWORD= password
-* DB_DATABASE= target database
-* DB_SEARCH_PATH= database schema (if supported -- e.g., postgresql)
-
+*HARENA_LOGGER_MONGODB_HOST = mongo host
+*HARENA_LOGGER_MONGODB_PORT = mongo port
+*HARENA_LOGGER_MONGODB_DB  = mongo database name
+*HARENA_LOGGER_MONGODB_COLLECTION = mongo current document
 
 ## Contributing
 
@@ -153,4 +120,4 @@ adonis  serve --dev --debug  # adjust flags according to you needs
     * Version running at http://cloud.lis.ic.unicamp.br/harena/latest .
     * Protected. Must use _pull request_ to merge evolutions of the _development_ branch.
 * **tags:**
-    * Are used for creating Dockerhub image versions at https://cloud.docker.com/u/datasci4health/repository/docker/datasci4health/harena-manager .    
+    * Are used for creating Dockerhub image versions at https://cloud.docker.com/u/datasci4health/repository/docker/datasci4health/harena-logger .    
