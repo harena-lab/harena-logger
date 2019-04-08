@@ -1,6 +1,7 @@
 #python-dotenv
 flask
 flask_restful
+flask-cors
 #Flask-MongoAlchemy
 #flask-migrate
 paho-mqtt
