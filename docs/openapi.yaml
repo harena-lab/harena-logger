@@ -1,0 +1,242 @@
+openapi: 3.0.0
+
+info:
+  description: Logger module API for the Harena project  asdfasdfasfd 
+  version: "0.0.4"
+  title: Harena Logger API
+  contact: 
+    name: Datasci4health  
+    url: "http://github.com/datasci4health"
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+
+servers:
+  - description: Harena Cloud
+    url: http://cloud.lis.ic.unicamp.br/harena/logger/latest/
+    
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/datasci4health/harena-logger/1.0.0
+
+
+tags:
+
+  - name: Message
+    description: Message streaming management
+  - name: Execution
+    description: Individual execution management
+paths:
+  /message:
+    post:
+      tags:
+        - Message
+      summary: Publishes a new message
+      description: publishes a message within the message streaming
+#     parameters:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/harena-message'
+        description: Harena message to be published
+      responses:
+        '201':
+          description: 'Message published successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-200'
+        '400':
+          description: 'Invalid input, object invalid'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-400'                
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-500'                
+
+
+    get:
+      tags:
+        - Message
+      summary: Retrieves all streamed messages 
+      description: retrieves all messages from the execution streamming
+#     parameters:
+      responses:
+        '200':
+          description: 'List of messages ordered by timestamp descending'
+
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-500'                
+
+
+
+
+    delete:
+      tags:
+        - Message
+      summary: Clears the message streaming
+      description: deletes message streaming from the database
+#     parameters:
+      responses:
+        '200':
+          description: 'Message streaming deleted successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-200'      
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-500'                
+
+
+
+  # /execution:
+  #   post:
+  #     tags:
+  #       - Execution
+  #     summary: Creates a new execution
+  #     description: Creates a new execution based on a user_id and a case_id
+
+  #     responses:
+  #       '201':
+  #         description: 'Execution successfully retrieved'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/status-201'      
+  #       '404':
+  #         description: 'Could not find execution id'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/status-404'                
+  #       '500':
+  #         description: 'Internal server error'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/status-500'                
+
+
+  # /execution/{execution-id}:
+  #   get:
+  #     tags:
+  #       - Execution
+  #     summary: Retrieves a specific execution
+  #     description: retrieves sequence of execution steps
+
+  #     parameters:
+  #       - name: execution-id
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: string
+  #           format: uuid
+  #           example: 0729a580-2240-11e6-9eb5-0002a5d5c51b
+
+  #     responses:
+  #       '200':
+  #         description: 'Execution successfully retrieved'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/harena-execution'      
+  #       '404':
+  #         description: 'Could not find execution id'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/status-404'                
+  #       '500':
+  #         description: 'Internal server error'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/status-500'                
+
+
+
+
+components:
+  schemas:
+    harena-message:
+      type: object
+      required:
+        - topic
+        - payload
+      properties:
+        topic:
+          type: string
+          pattern: '[^/]+'          
+          example: harena/level1/level2/level3
+        payload:
+          type: object
+          
+    harena-execution:
+      type: object
+      required:
+        - topic
+        - payload
+      properties:
+        topic:
+          type: string
+          pattern: '[^/]+'          
+          example: harena/level1/level2/level3
+        payload:
+          type: object
+
+
+    status-200:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: 'success'
+    status-201:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: 'successfully created'
+          
+    status-400:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: 'invalid input'
+    status-404:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: 'not found'
+                    
+    status-500:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: 'internal server error'

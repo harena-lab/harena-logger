@@ -1,5 +1,6 @@
 #python-dotenv
 flask
+flask-cors
 flask-restful
 #Flask-MongoAlchemy
 #flask-migrate
