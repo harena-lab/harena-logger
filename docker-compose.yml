@@ -20,6 +20,9 @@ services:
       - harena-logger-broker
       - harena-logger-mongodb
     restart: always
+    networks:
+      - harena-logger
+      - harena
     
 
   harena-logger-broker:
@@ -27,6 +30,8 @@ services:
 #    ports:
 #      - 1883:1883
     restart: always
+    networks:
+      - harena-logger
 
 
   harena-logger-mongodb:
@@ -39,8 +44,17 @@ services:
 #    ports:
 #      - 27017:27017
 #    command: mongod --smallfiles --logpath=/dev/null # --quiet
-
+    networks:
+      - harena-logger
 
 
 volumes:
   harena_logger_mongodb:
+  
+
+networks:
+  harena-space:
+    driver: bridge
+  harena:
+    external:
+      name: harena    
