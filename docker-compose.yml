@@ -22,7 +22,6 @@ services:
     restart: always
     networks:
       - harena-logger
-      - harena
     
 
   harena-logger-broker:
@@ -54,7 +53,4 @@ volumes:
 
 networks:
   harena-logger:
-    driver: bridge
-  harena:
-    external:
-      name: harena    
+    driver: bridge  
