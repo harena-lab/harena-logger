@@ -24,8 +24,8 @@ services:
 
   harena-logger-broker:
     image: eclipse-mosquitto
-    ports:
-      - 1883:1883
+#    ports:
+#      - 1883:1883
     restart: always
 
 
@@ -36,9 +36,9 @@ services:
       - MONGO_LOG_DIR=/dev/null
     volumes:
       - harena_logger_mongodb:/data/db
-    ports:
-      - 27017:27017
-    # command: mongod --smallfiles --logpath=/dev/null # --quiet
+#    ports:
+#      - 27017:27017
+#    command: mongod --smallfiles --logpath=/dev/null # --quiet
 
 
 
