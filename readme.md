@@ -4,7 +4,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/datasci4health/harena-logger.svg?style=flat)](https://cloud.docker.com/u/datasci4health/repository/registry-1.docker.io/datasci4health/harena-logger)
 [![Docker Stars](https://img.shields.io/docker/stars/datasci4health/harena-logger.svg?style=flat)](https://cloud.docker.com/u/datasci4health/repository/registry-1.docker.io/datasci4health/harena-logger)
 
-# herena-logger
+# harena-logger
 
 [Harena](https://github.com/datasci4health/harena)'s API for managing users and clinical cases.
 
