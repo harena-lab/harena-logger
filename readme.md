@@ -6,6 +6,7 @@
 
 # harena-logger
 
+
 [Harena](https://github.com/datasci4health/harena)'s API for managing users and clinical cases.
 
 ## Table of Contents 
