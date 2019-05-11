@@ -3,19 +3,20 @@ version: '3'
 services:
 
   harena-logger:
-    image: datasci4health/harena-logger
+    # image: datasci4health/harena-logger
+    build: ./
     environment:
+      - HARENA_LOGGER_FLASK_HOST=0.0.0.0
+      - HARENA_LOGGER_FLASK_PORT=10030
+      - HARENA_LOGGER_FLASK_DEBUG=False
       - HARENA_LOGGER_BROKER_HOST=harena-logger-broker
       - HARENA_LOGGER_BROKER_PORT=1883
-      - HARENA_LOGGER_FLASK_HOST=0.0.0.0
-      - HARENA_LOGGER_FLASK_PORT=5000
-      - HARENA_LOGGER_FLASK_DEBUG=False
       - HARENA_LOGGER_MONGODB_HOST=harena-logger-mongodb
       - HARENA_LOGGER_MONGODB_PORT=27017
       - HARENA_LOGGER_MONGODB_DB=harena_logger
       - HARENA_LOGGER_MONGODB_COLLECTION=executions
     ports:
-      - 5000:5000
+      - 10030:10030
     depends_on:
       - harena-logger-broker
       - harena-logger-mongodb
@@ -24,25 +25,25 @@ services:
       - harena-logger
     
 
-  harena-logger-broker:
-    image: eclipse-mosquitto
-#    ports:
-#      - 1883:1883
-    restart: always
-    networks:
-      - harena-logger
-
-
   harena-logger-mongodb:
     image: mongo:latest
     environment:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
+    ports:
+      - 10031:27017
     volumes:
-      - harena_logger_mongodb:/data/db
-#    ports:
-#      - 27017:27017
-#    command: mongod --smallfiles --logpath=/dev/null # --quiet
+      - harena_logger_mongodb:/data/db      
+    # command: mongod --smallfiles --logpath=/dev/null # --quiet
+    networks:
+      - harena-logger
+
+
+  harena-logger-broker:
+    image: eclipse-mosquitto
+    ports:
+      - 10032:1883
+    restart: always
     networks:
       - harena-logger
 
