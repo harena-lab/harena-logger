@@ -41,7 +41,9 @@ class HarenaMessageResource(Resource):
         broker_publishing_flag = self.broker.publish(topic,json.dumps(payload))
         mongodb_insertion_flag = self.mongodb_collection.insert_one(message)
 
-        return 'Message published successfully', 201
+        data = {"message":'Message published successfully'}
+
+        return jsonify(data)        
 
     def get(self):
         docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
@@ -81,7 +83,7 @@ if __name__ == '__main__':
     broker.reconnect_delay_set(min_delay=1, max_delay=20)
 
     api.add_resource(IndexResource,         '/',       resource_class_args=[broker,mongodb_client])
-    api.add_resource(HarenaMessageResource, '/message',resource_class_args=[broker,mongodb_collection])
+    api.add_resource(HarenaMessageResource, '/api/v1/message',resource_class_args=[broker,mongodb_collection])
 
     web_app.run(host=web_app.config['HARENA_LOGGER_FLASK_HOST'],
                 port=web_app.config['HARENA_LOGGER_FLASK_PORT'],
