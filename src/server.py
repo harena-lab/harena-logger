@@ -30,6 +30,7 @@ class HarenaMessageResource(Resource):
         self.broker = broker
         self.mongodb_collection = mongodb_collection
 
+    @cross_origin()
     def post(self):
         message = request.get_json()
         print(json.dumps(message))
@@ -45,6 +46,8 @@ class HarenaMessageResource(Resource):
 
         return jsonify(data)        
 
+
+    @cross_origin()
     def get(self):
         docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
 
@@ -56,6 +59,8 @@ class HarenaMessageResource(Resource):
 
         return jsonify({'execution_stream':items})
 
+
+    @cross_origin()
     def delete(self):
         self.mongodb_collection.delete_many({})
         data = {"message":'Messages in the execution stream deleted successfully'}
