@@ -7,7 +7,7 @@ import time
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from config import Config
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 
 class IndexResource(Resource):
