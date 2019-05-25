@@ -11,7 +11,7 @@ services:
       - HARENA_LOGGER_FLASK_DEBUG=False
       - HARENA_LOGGER_BROKER_HOST=harena-logger-broker
       - HARENA_LOGGER_BROKER_PORT=1883
-      - HARENA_LOGGER_MONGODB_HOST=harena-logger-mongodb
+      - HARENA_LOGGER_MONGODB_HOST=harena-logger-rawdata
       - HARENA_LOGGER_MONGODB_PORT=27017
       - HARENA_LOGGER_MONGODB_DB=harena_logger
       - HARENA_LOGGER_MONGODB_COLLECTION=executions
@@ -19,13 +19,13 @@ services:
       - 10030:10030
     depends_on:
       - harena-logger-broker
-      - harena-logger-mongodb
+      - harena-logger-rawdata
     restart: always
     networks:
       - harena-logger
     
 
-  harena-logger-mongodb:
+  harena-logger-rawdata:
     image: mongo:latest
     environment:
       - MONGO_DATA_DIR=/data/db
@@ -33,7 +33,7 @@ services:
     ports:
       - 10031:27017
     volumes:
-      - harena_logger_mongodb:/data/db      
+      - harena_logger_rawdata:/data/db      
     # command: mongod --smallfiles --logpath=/dev/null # --quiet
     networks:
       - harena-logger
@@ -49,7 +49,7 @@ services:
 
 
 volumes:
-  harena_logger_mongodb:
+  harena_logger_rawdata:
   
 
 networks:
