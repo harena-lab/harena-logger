@@ -49,15 +49,10 @@ class HarenaMessageResource(Resource):
 
     @cross_origin(origin='*')
     def get(self):
-        docs = self.mongodb_collection.find().sort([("timestamp", pymongo.DESCENDING)])
+        message = {"message": "message streaming is up"
 
-        items = []
-
-        for doc in docs:
-            doc['_id'] = str(doc['_id'])
-            items.append(doc)
-
-        return jsonify({'execution_stream':items})
+        }
+        return message
 
 
     @cross_origin(origin='*')
@@ -76,8 +71,8 @@ if __name__ == '__main__':
     api     = Api(web_app)
 
     mongodb_client     = pymongo.MongoClient("mongodb://{0}:{1}/"
-        .format(web_app.config['HARENA_LOGGER_MONGODB_HOST'], \
-        web_app.config['HARENA_LOGGER_MONGODB_PORT']))
+                         .format(web_app.config['HARENA_LOGGER_MONGODB_HOST'], \
+                         web_app.config['HARENA_LOGGER_MONGODB_PORT']))
 
     mongodb_db         = mongodb_client[web_app.config['HARENA_LOGGER_MONGODB_DB']]
     mongodb_collection = mongodb_db[web_app.config['HARENA_LOGGER_MONGODB_COLLECTION']]
