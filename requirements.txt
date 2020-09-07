@@ -6,4 +6,5 @@ flask-restful
 #flask-migrate
 paho-mqtt
 pymongo
-kafka
+kafka-python
+coloredlogs
