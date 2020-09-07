@@ -44,13 +44,14 @@ class KafkaMongodbAppender (threading.Thread):
          mongodb_collection = mongodb_db[self.mongodb_collection]
 
          print("Checking for newly streamed messages during at least {} seconds...".format(self.delay))
-
-         for message in self.kafka_consumer:
-            #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition, message.offset, message.key, message.value))
-            print("Found {} events inside a message ".format(len(message.value['harena-log-stream'])))
-
-            for event in message.value['harena-log-stream']:
-               mongodb_collection.insert_one(event)
+         try:
+            for message in self.kafka_consumer:
+               #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition, message.offset, message.key, message.value))
+                  print("Found {} events inside a message ".format(len(message.value['harena-log-stream'])))
+                  for event in message.value['harena-log-stream']:
+                     mongodb_collection.insert_one(event)
+         except:
+                print("Object is not a JSON or does not have an 'harena-log-stream' array")
 
 
          print("Waiting time ({} seconds) for new messages ended.".format(self.delay)) 
@@ -84,20 +85,21 @@ class HarenaMessageResource(Resource):
     @cross_origin(origin='*')
     def post(self):
 
-        # To do: properly evaluate message body parsing
-        message = request.get_json()
-        message['server_timestamp'] = "{}".format(int(round(time.time() * 1000)))
-
-        # Asynchronous by default
-        future = self.kafka_producer.send(self.target_topic, json.dumps(message).encode('utf-8'))
-
-        # Block for 'synchronous' sends
         try:
+           # To do: properly evaluate message body parsing
+           message = request.get_json()
+           message['server_timestamp'] = "{}".format(int(round(time.time() * 1000)))
+
+           # Asynchronous by default
+           future = self.kafka_producer.send(self.target_topic, json.dumps(message).encode('utf-8'))
+
+           # Block for 'synchronous' sends
            record_metadata = future.get(timeout=10)
         except KafkaError:
            # Decide what to do if produce request failed...
            log.exception()
-           pass
+        except:
+           print("could not validate the json")
 
         # Successful result returns assigned partition and offset
         # print(future)
