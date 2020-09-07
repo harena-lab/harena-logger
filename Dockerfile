@@ -9,4 +9,4 @@ RUN pip3 install --upgrade -r requirements.txt
 
 ADD ./src .
 
-CMD ["python3", "server.py"]
+CMD ["python3", "-u", "server.py"]
