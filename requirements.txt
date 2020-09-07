@@ -6,3 +6,4 @@ flask-restful
 #flask-migrate
 paho-mqtt
 pymongo
+kafka
