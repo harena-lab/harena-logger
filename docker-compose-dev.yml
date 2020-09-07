@@ -10,16 +10,15 @@ services:
       - HARENA_LOGGER_FLASK_PORT=10030
       - HARENA_LOGGER_FLASK_DEBUG=True
       - FLASK_DEBUG=True
+      - FLASK_ENV=development      
       - HARENA_LOGGER_MONGODB_HOST=mongodb
       - HARENA_LOGGER_MONGODB_PORT=27017
       - HARENA_LOGGER_MONGODB_DB=harena_logger
-      - HARENA_LOGGER_MONGODB_COLLECTION=executions
+      - HARENA_LOGGER_MONGODB_COLLECTION=event_logs
       - HARENA_LOGGER_KAFKA_BROKERS=kafka1:19092
       - PYTHONUNBUFFERED=1
       - PYTHONIOENCODING=UTF-8
-      - FLASK_ENV=development
-      - LOGGING_NAME=harena-logger
-      - LOGGING_LEVEL=DEBUG
+
     ports:
       - 10030:10030
     depends_on:

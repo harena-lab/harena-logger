@@ -8,18 +8,23 @@ services:
     environment:
       - HARENA_LOGGER_FLASK_HOST=0.0.0.0
       - HARENA_LOGGER_FLASK_PORT=10030
-      - HARENA_LOGGER_FLASK_DEBUG=False
-      - HARENA_LOGGER_BROKER_HOST=broker
-      - HARENA_LOGGER_BROKER_PORT=1883
+      - HARENA_LOGGER_FLASK_DEBUG=True
+      - FLASK_DEBUG=True
+      - FLASK_ENV=production
       - HARENA_LOGGER_MONGODB_HOST=mongodb
       - HARENA_LOGGER_MONGODB_PORT=27017
       - HARENA_LOGGER_MONGODB_DB=harena_logger
-      - HARENA_LOGGER_MONGODB_COLLECTION=executions
+      - HARENA_LOGGER_MONGODB_COLLECTION=event_logs
+      - HARENA_LOGGER_KAFKA_BROKERS=kafka1:19092
+      - PYTHONUNBUFFERED=1
+      - PYTHONIOENCODING=UTF-8
     ports:
       - 10030:10030
     depends_on:
       - kafka1
       - mongodb
+      - zoo1
+    restart: always
     restart: always
     networks:
       - harena-logger
