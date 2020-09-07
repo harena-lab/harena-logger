@@ -15,7 +15,7 @@ class Config(object):
 
     HARENA_LOGGER_KAFKA_BROKERS      = os.environ.get('HARENA_LOGGER_KAFKA_BROKERS', 'kafka1:19092')
     HARENA_LOGGER_KAFKA_TOPIC        = os.environ.get('HARENA_LOGGER_KAFKA_TOPIC', 'harena-logs')
-    HARENA_LOGGER_INTERVAL_S         = os.environ.get('HARENA_LOGGER_INTERVAL_S', 10)
+    HARENA_LOGGER_INTERVAL_S         = int(os.environ.get('HARENA_LOGGER_INTERVAL_S', 10))
 
 
     # LOGGING SETTINGS
