@@ -46,12 +46,15 @@ class KafkaMongodbAppender (threading.Thread):
          print("Checking for newly streamed messages during at least {} seconds...".format(self.delay))
          try:
             for message in self.kafka_consumer:
-               #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition, message.offset, message.key, message.value))
+                  print()
+                  print (">   New message | %s:%d:%d: key=%s value=%s" % (message.topic, message.partition, message.offset, message.key, message.value))
                   print("Found {} events inside a message ".format(len(message.value['harena-log-stream'])))
                   for event in message.value['harena-log-stream']:
                      mongodb_collection.insert_one(event)
+                  print()
          except:
                 print("Object is not a JSON or does not have an 'harena-log-stream' array")
+                print()
 
 
          print("Waiting time ({} seconds) for new messages ended.".format(self.delay)) 
