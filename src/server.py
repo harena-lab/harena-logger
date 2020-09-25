@@ -8,6 +8,7 @@ import threading
 import logging
 import coloredlogs
 
+from dto import ArenaLoggerDtoValidator
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from config import Config
@@ -44,6 +45,7 @@ class KafkaMongodbAppender (threading.Thread):
          mongodb_collection = mongodb_db[self.mongodb_collection]
 
          print("Checking for newly streamed messages during at least {} seconds...".format(self.delay))
+
          try:
             for message in self.kafka_consumer:
                   print()
@@ -52,10 +54,9 @@ class KafkaMongodbAppender (threading.Thread):
                   for event in message.value['harena-log-stream']:
                      mongodb_collection.insert_one(event)
                   print()
-         except:
+         except Exception as e:
                 print("Object is not a JSON or does not have an 'harena-log-stream' array")
-                print()
-
+                print("Exception trace message: "+str(e))
 
          print("Waiting time ({} seconds) for new messages ended.".format(self.delay)) 
          mongodb_client.close()
@@ -68,7 +69,6 @@ class IndexResource(Resource):
       self.kafka_producer=kafka_producer
       
       LOGGER.debug("IndexResource initialized")
-
 
     def get(self):
       message = {"message": "Welcome to the Harena Logger module",
@@ -84,7 +84,6 @@ class HarenaMessageResource(Resource):
         self.target_topic=target_topic
 
         
-
     @cross_origin(origin='*')
     def post(self):
 
@@ -92,17 +91,20 @@ class HarenaMessageResource(Resource):
            # To do: properly evaluate message body parsing
            message = request.get_json()
            message['server_timestamp'] = "{}".format(int(round(time.time() * 1000)))
-
+           
+           ArenaLoggerDtoValidator.validateDto(message)
            # Asynchronous by default
            future = self.kafka_producer.send(self.target_topic, json.dumps(message).encode('utf-8'))
 
            # Block for 'synchronous' sends
            record_metadata = future.get(timeout=10)
-        except KafkaError:
+        except KafkaError as ke:
            # Decide what to do if produce request failed...
-           log.exception()
-        except:
+           logging.exception(ke)
+        except Exception as e:
            print("could not validate the json")
+           print("Exception trace message: " + str(e))
+           logging.exception(e)
 
         # Successful result returns assigned partition and offset
         # print(future)
@@ -120,13 +122,10 @@ class HarenaMessageResource(Resource):
         }
         return message
 
-
 if __name__ == '__main__':
-
 
     kafka_producer = None
     kafka_consumer = None
-
 
     while True:
         try:
@@ -137,13 +136,12 @@ if __name__ == '__main__':
                                                                              value_deserializer=lambda m: json.loads(m.decode('utf-8')),
                                                                              consumer_timeout_ms=Config.HARENA_LOGGER_INTERVAL_S*1000)
             break
-        except:    
+        except Exception as e:
+            print("Exception trace message: "+ str(e))    
             pass
 
         print("Could not exchange metadata with Kafka bootstrap servers for the first time. Retrying...")
         time.sleep(1)
-
-
 
 
     consumer_thread = KafkaMongodbAppender(mongodb_server_url=Config.HARENA_LOGGER_MONGODB_URL,

@@ -81,10 +81,11 @@ flask run                              # running the application
 ##### System dependencies
 
 * flask
-* flask-restful
 * flask-cors
-* paho-mqtt
+* flask-restful
 * pymongo
+* kafka-python
+* coloredlogs
 
 ## Configuration
 
