@@ -36,7 +36,7 @@ class ArenaLoggerDtoValidator():
 
 class HarenaLogergStream(Schema):
     topic = fields.String()
-    payload = fields.String()
+    payload = fields.Dict()
         
 class LoggerDto(Schema):
     harena_log_stream_version = fields.String(required=True, attribute="harena-log-stream-version")

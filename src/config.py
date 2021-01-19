@@ -30,3 +30,7 @@ class Config(object):
 
     LOGGING_FORMAT = ('%(asctime) -19s | %(levelname) -8s | %(threadName) -10s | '
                       '%(funcName) -16s | %(message)s')
+
+    LOGGING_FILE = "/var/logs/harena-logger.log"
+    LOGGING_ENCONDE = "utf-8"
+    
