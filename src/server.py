@@ -95,9 +95,9 @@ class HarenaMessageResource(Resource):
            logger_dto_schema = LoggerDto()
            logger_dto = logger_dto_schema.load(message)
            
-           ArenaLoggerDtoValidator.validateDto(message)
+           #ArenaLoggerDtoValidator.validateDto(message)
            # Asynchronous by default
-           future = self.kafka_producer.send(self.target_topic, json.dumps(message).encode('utf-8'))
+           future = self.kafka_producer.send(self.target_topic, json.dumps(logger_dto).encode('utf-8'))
 
            # Block for 'synchronous' sends
            record_metadata = future.get(timeout=10)

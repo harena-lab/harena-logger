@@ -39,7 +39,7 @@ class HarenaLogergStream(Schema):
     payload = fields.String()
         
 class LoggerDto(Schema):
-    harena-log-stream-version = fields.String(required=True)
-    harena-log-stream = fields.Nested(HarenaLogergStream(many=True))
+    harena_log_stream_version = fields.String(required=True, attribute="harena-log-stream-version")
+    harena_log_stream = fields.Nested(HarenaLogergStream(many=True), attribute="harena-log-stream")
     server_timestamp = fields.String()
 
