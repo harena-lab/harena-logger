@@ -1,4 +1,16 @@
 import enums
+from json import dumps, loads
+from flask import Flask, jsonify, request
+from marshmallow import Schema, fields, ValidationError
+
+#{
+#   "harena-log-stream-version": 1
+#   "harena-log-stream": [
+#       "topic": "topic_name",
+#       "payload": "any content here"
+#   ]
+#}
+#
 
 class ArenaLoggerDtoValidator():
     @staticmethod
@@ -21,4 +33,13 @@ class ArenaLoggerDtoValidator():
 
             if not bool(harena_stream_log_value['payload']):
                 raise ValueError("One or more harena-log-stream items does not contains key-value pair")
+
+class HarenaLogergStream(Schema):
+    topic = fields.String()
+    payload = fields.String()
         
+class LoggerDto(Schema):
+    harena-log-stream-version = fields.String(required=True)
+    harena-log-stream = fields.Nested(HarenaLogergStream(many=True))
+    server_timestamp = fields.String()
+

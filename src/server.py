@@ -8,7 +8,7 @@ import threading
 import logging
 import coloredlogs
 
-from dto import ArenaLoggerDtoValidator
+from dto import ArenaLoggerDtoValidator, LoggerDto
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from config import Config
@@ -91,6 +91,9 @@ class HarenaMessageResource(Resource):
            # To do: properly evaluate message body parsing
            message = request.get_json()
            message['server_timestamp'] = "{}".format(int(round(time.time() * 1000)))
+
+           logger_dto_schema = LoggerDto()
+           logger_dto = logger_dto_schema.load(message)
            
            ArenaLoggerDtoValidator.validateDto(message)
            # Asynchronous by default
