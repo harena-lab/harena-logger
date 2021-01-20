@@ -3,6 +3,9 @@ from json import dumps, loads
 from flask import Flask, jsonify, request
 from marshmallow import Schema, fields, ValidationError
 
+#marshmallow API reference: https://marshmallow.readthedocs.io/en/stable/index.html
+
+# DTO current proposed structure on version 1.
 #{
 #   "harena-log-stream-version": 1
 #   "harena-log-stream": [
