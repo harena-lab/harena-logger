@@ -18,8 +18,7 @@ from kafka import KafkaConsumer
 from kafka.errors import KafkaError
 from marshmallow import Schema, fields, ValidationError
 
-# To do: Logging not appearing in Docker logs
-logging.basicConfig(filename="/var/log/harena-logger.log", level=Config.LOGGING_LEVEL)
+logging.basicConfig(filename="/var/log/harena-logger.log", level=Config.LOGGING_LEVEL, format=Config.LOGGING_FORMAT)
 LOGGER = logging.getLogger(Config.LOGGING_NAME)
 
 class KafkaMongodbAppender (threading.Thread):
@@ -90,18 +89,14 @@ class HarenaMessageResource(Resource):
     def post(self):
 
         try:
-           # To do: properly evaluate message body parsing
            message = request.get_json()
-           LOGGER.info("-----------------")
            LOGGER.info(message)
-           LOGGER.info(type(message))
 
            logger_dto_schema = LoggerDto()
            logger_dto = logger_dto_schema.load(message)
 
            logger_dto['server_timestamp'] = "{}".format(int(round(time.time() * 1000)))
            
-           #ArenaLoggerDtoValidator.validateDto(message)
            # Asynchronous by default
            future = self.kafka_producer.send(self.target_topic, json.dumps(logger_dto).encode('utf-8'))
 

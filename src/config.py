@@ -20,7 +20,7 @@ class Config(object):
 
     # LOGGING SETTINGS
     LOGGING_NAME = os.environ.get('LOGGING_NAME', 'harena-logger')
-    LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', 'DEBUG')
+    LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', 'INFO')
 
     LOGGING_STYLES = ('info=blue;'
                       'warning=green;'
@@ -33,4 +33,3 @@ class Config(object):
 
     LOGGING_FILE = "/var/logs/harena-logger.log"
     LOGGING_ENCONDE = "utf-8"
-    
