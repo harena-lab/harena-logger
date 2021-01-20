@@ -8,7 +8,7 @@ import threading
 import logging
 import coloredlogs
 
-from dto import ArenaLoggerDtoValidator
+from dto import ArenaLoggerDtoValidator, LoggerDto
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from config import Config
@@ -16,8 +16,9 @@ from flask_cors import CORS, cross_origin
 from kafka import KafkaProducer
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError
+from marshmallow import Schema, fields, ValidationError
 
-# To do: Logging not appearing in Docker logs
+logging.basicConfig(filename="/var/log/harena-logger.log", level=Config.LOGGING_LEVEL, format=Config.LOGGING_FORMAT)
 LOGGER = logging.getLogger(Config.LOGGING_NAME)
 
 class KafkaMongodbAppender (threading.Thread):
@@ -88,23 +89,30 @@ class HarenaMessageResource(Resource):
     def post(self):
 
         try:
-           # To do: properly evaluate message body parsing
            message = request.get_json()
-           message['server_timestamp'] = "{}".format(int(round(time.time() * 1000)))
+           LOGGER.info(message)
+
+           logger_dto_schema = LoggerDto()
+           logger_dto = logger_dto_schema.load(message)
+
+           logger_dto['server_timestamp'] = "{}".format(int(round(time.time() * 1000)))
            
-           ArenaLoggerDtoValidator.validateDto(message)
            # Asynchronous by default
-           future = self.kafka_producer.send(self.target_topic, json.dumps(message).encode('utf-8'))
+           future = self.kafka_producer.send(self.target_topic, json.dumps(logger_dto).encode('utf-8'))
 
            # Block for 'synchronous' sends
            record_metadata = future.get(timeout=10)
         except KafkaError as ke:
            # Decide what to do if produce request failed...
-           logging.exception(ke)
+           LOGGER.exception(ke)
+        except ValidationError as err:
+        # Return a nice message if validation fails
+            LOGGER.exception(err)
+            return jsonify(err.messages), 400
         except Exception as e:
            print("could not validate the json")
            print("Exception trace message: " + str(e))
-           logging.exception(e)
+           LOGGER.exception(e)
 
         # Successful result returns assigned partition and offset
         # print(future)
