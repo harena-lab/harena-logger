@@ -1,0 +1,28 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="15">
+            <item index="0" class="java.lang.String" itemvalue="coverage" />
+            <item index="1" class="java.lang.String" itemvalue="nose" />
+            <item index="2" class="java.lang.String" itemvalue="django-celery-beat" />
+            <item index="3" class="java.lang.String" itemvalue="django-nose" />
+            <item index="4" class="java.lang.String" itemvalue="pyodbc" />
+            <item index="5" class="java.lang.String" itemvalue="django-mssql-backend" />
+            <item index="6" class="java.lang.String" itemvalue="psycopg2-binary" />
+            <item index="7" class="java.lang.String" itemvalue="gunicorn" />
+            <item index="8" class="java.lang.String" itemvalue="docker-compose" />
+            <item index="9" class="java.lang.String" itemvalue="redis" />
+            <item index="10" class="java.lang.String" itemvalue="docker-pycreds" />
+            <item index="11" class="java.lang.String" itemvalue="celery" />
+            <item index="12" class="java.lang.String" itemvalue="djangorestframework-simplejwt" />
+            <item index="13" class="java.lang.String" itemvalue="dockerpty" />
+            <item index="14" class="java.lang.String" itemvalue="djangorestframework" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

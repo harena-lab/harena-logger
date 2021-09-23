@@ -1,148 +1,200 @@
-version: '3'
-
+version: "3.3"
 services:
 
-
-  harena-logger:
-    image: datasci4health/harena-logger:v1
-    environment:
-      - HARENA_LOGGER_FLASK_HOST=0.0.0.0
-      - HARENA_LOGGER_FLASK_PORT=10030
-      - HARENA_LOGGER_FLASK_DEBUG=True
-      - FLASK_DEBUG=True
-      - FLASK_ENV=production
-      - HARENA_LOGGER_MONGODB_HOST=mongodb
-      - HARENA_LOGGER_MONGODB_PORT=27017
-      - HARENA_LOGGER_MONGODB_DB=harena_logger
-      - HARENA_LOGGER_MONGODB_COLLECTION=event_logs
-      - HARENA_LOGGER_KAFKA_BROKERS=kafka1:19092
-      - PYTHONUNBUFFERED=1
-      - PYTHONIOENCODING=UTF-8
-    ports:
-      - 10030:10030
-    depends_on:
-      - kafka1
-      - mongodb
-      - zoo1
-    restart: always
-    restart: always
+  proxy:
+    image: traefik:v2.2
     networks:
-      - harena-logger
-    
-
-  mongodb:
-    image: mongo:latest
-    environment:
-      - MONGO_DATA_DIR=/data/db
-      - MONGO_LOG_DIR=/dev/null
-    ports:
-      - 10031:27017
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
     volumes:
-      - harena_logger_mongodb_data:/data/db      
-    # command: mongod --smallfiles --logpath=/dev/null # --quiet
-    networks:
-      - harena-logger
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      # Enable Docker in Traefik, so that it reads labels from Docker services
+      - --providers.docker
+      # Add a constraint to only use services with the label for this stack
+      # from the env var TRAEFIK_TAG
+      - --providers.docker.constraints=Label(`traefik.constraint-label-stack`, `${TRAEFIK_TAG?Variable not set}`)
+      # Do not expose all Docker services, only the ones explicitly exposed
+      - --providers.docker.exposedbydefault=false
+      # Enable Docker Swarm mode
+      - --providers.docker.swarmmode
+      # Enable the access log, with HTTP requests
+      - --accesslog
+      # Enable the Traefik log, for configurations and errors
+      - --log
+      # Enable the Dashboard and API
+      - --api
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        # Enable Traefik for this service, to make it available in the public network
+        - traefik.enable=true
+        # Use the traefik-public network (declared below)
+        - traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+        # Use the custom label "traefik.constraint-label=traefik-public"
+        # This public Traefik will only use services with this label
+        - traefik.constraint-label=${TRAEFIK_PUBLIC_TAG?Variable not set}
+        # traefik-http set up only to use the middleware to redirect to https
+        - traefik.http.middlewares.${STACK_NAME?Variable not set}-https-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.${STACK_NAME?Variable not set}-https-redirect.redirectscheme.permanent=true
+        # Handle host with and without "www" to redirect to only one of them
+        # Uses environment variable DOMAIN
+        # To disable www redirection remove the Host() you want to discard, here and
+        # below for HTTPS
+        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.rule=Host(`${DOMAIN?Variable not set}`) || Host(`www.${DOMAIN?Variable not set}`)
+        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.entrypoints=http
+        # traefik-https the actual router using HTTPS
+        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.rule=Host(`${DOMAIN?Variable not set}`) || Host(`www.${DOMAIN?Variable not set}`)
+        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.entrypoints=https
+        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.tls=true
+        # Use the "le" (Let's Encrypt) resolver created below
+        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.tls.certresolver=le
+        # Define the port inside of the Docker service to use
+        - traefik.http.services.${STACK_NAME?Variable not set}-proxy.loadbalancer.server.port=80
+        # Handle domain with and without "www" to redirect to only one
+        # To disable www redirection remove the next line
+        - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.regex=^https?://(www.)?(${DOMAIN?Variable not set})/(.*)
+        # Redirect a domain with www to non-www
+        # To disable it remove the next line
+        - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.replacement=https://${DOMAIN?Variable not set}/$${3}
+        # Redirect a domain without www to www
+        # To enable it remove the previous line and uncomment the next
+        # - traefik.http.middlewares.${STACK_NAME}-www-redirect.redirectregex.replacement=https://www.${DOMAIN}/$${3}
+        # Middleware to redirect www, to disable it remove the next line 
+        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
+        # Middleware to redirect www, and redirect HTTP to HTTPS
+        # to disable www redirection remove the section: ${STACK_NAME?Variable not set}-www-redirect,
+        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.middlewares=${STACK_NAME?Variable not set}-www-redirect,${STACK_NAME?Variable not set}-https-redirect
 
-
-  zoo1:
-    image: zookeeper:3.4.9
-    hostname: zoo1
-    ports:
-      - "2181:2181"
-    environment:
-        ZOO_MY_ID: 1
-        ZOO_PORT: 2181
-        ZOO_SERVERS: server.1=zoo1:2888:3888
+  db:
+    image: postgres:12
     volumes:
-      - harena_logger_kafka_zoo1_data:/data
-      - harena_logger_kafka_zoo1_datalog:/datalog
-    networks:
-      - harena-logger
-
-
-  kafka1:
-    image: confluentinc/cp-kafka:5.5.1
-    hostname: kafka1
-    ports:
-      - "9092:9092"
+      - app-db-data:/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
     environment:
-      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
-      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
-      KAFKA_BROKER_ID: 1
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    volumes:
-      - harena_logger_kafka1_data:/var/lib/kafka/data
-    depends_on:
-      - zoo1
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    deploy:
+      placement:
+        constraints:
+          - node.labels.${STACK_NAME?Variable not set}.app-db-data == true
+
+  pgadmin:
+    image: dpage/pgadmin4
     networks:
-      - harena-logger
-
-  # kafka-connect:
-  #   image: confluentinc/cp-kafka-connect:5.1.2
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   hostname: kafka-connect
-  #   container_name: kafka-connect
-  #   depends_on:
-  #     - zoo1
-  #     - kafka1
-  #   ports:
-  #     - "8083:8083"
-
-  #   environment:
-  #     CONNECT_BOOTSTRAP_SERVERS: 'kafka1:29092'
-  #     CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
-  #     CONNECT_REST_PORT: 8083
-  #     CONNECT_GROUP_ID: compose-connect-group
-  #     CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
-  #     CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
-  #     CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
-  #     CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
-  #     CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-  #     CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
-  #     CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
-  #     CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-  #     CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-  #     CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-  #     CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-  #     CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
-  #     CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,com.mongodb.kafka=DEBUG"
-  #     CONNECT_PLUGIN_PATH: /usr/share/confluent-hub-components
-  #     CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-  #     # Assumes image is based on confluentinc/kafka-connect-datagen:latest which is pulling 5.2.2 Connect image
-  #     CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-5.2.2.jar
-  #     CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
-  #     CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
-  #   command: "bash -c 'if [ ! -d /usr/share/confluent-hub-components/confluentinc-kafka-connect-datagen ]; then echo \"WARNING: Did not find directory for kafka-connect-datagen (did you remember to run: docker-compose up -d --build ?)\"; fi ; /etc/confluent/docker/run'"
-  #   volumes:
-  #     - ./kafka-connect-mongodb:/usr/share/confluent-hub-components/kafka-connect-mongodb
-  #   networks:
-  #     - harena-logger
-
-
-  kafdrop:
-    image: obsidiandynamics/kafdrop:latest
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
     depends_on:
-      -   kafka1
-    ports:
-      - 9000:9000
+      - db
+    env_file:
+      - .env
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+        - traefik.constraint-label=${TRAEFIK_PUBLIC_TAG?Variable not set}
+        - traefik.http.routers.${STACK_NAME?Variable not set}-pgadmin-http.rule=Host(`pgadmin.${DOMAIN?Variable not set}`)
+        - traefik.http.routers.${STACK_NAME?Variable not set}-pgadmin-http.entrypoints=http
+        - traefik.http.routers.${STACK_NAME?Variable not set}-pgadmin-http.middlewares=${STACK_NAME?Variable not set}-https-redirect
+        - traefik.http.routers.${STACK_NAME?Variable not set}-pgadmin-https.rule=Host(`pgadmin.${DOMAIN?Variable not set}`)
+        - traefik.http.routers.${STACK_NAME?Variable not set}-pgadmin-https.entrypoints=https
+        - traefik.http.routers.${STACK_NAME?Variable not set}-pgadmin-https.tls=true
+        - traefik.http.routers.${STACK_NAME?Variable not set}-pgadmin-https.tls.certresolver=le
+        - traefik.http.services.${STACK_NAME?Variable not set}-pgadmin.loadbalancer.server.port=5050
+
+  queue:
+    image: rabbitmq:3
+    # Using the below image instead is required to enable the "Broker" tab in the flower UI:
+    # image: rabbitmq:3-management
+    #
+    # You also have to change the flower command
+  
+  flower:
+    image: mher/flower:0.9.7
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    env_file:
+      - .env
+    command:
+      - "--broker=amqp://guest@queue:5672//"
+      # For the "Broker" tab to work in the flower UI, uncomment the following command argument,
+      # and change the queue service's image as well
+      # - "--broker_api=http://guest:guest@queue:15672/api//"
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+        - traefik.constraint-label=${TRAEFIK_PUBLIC_TAG?Variable not set}
+        - traefik.http.routers.${STACK_NAME?Variable not set}-flower-http.rule=Host(`flower.${DOMAIN?Variable not set}`)
+        - traefik.http.routers.${STACK_NAME?Variable not set}-flower-http.entrypoints=http
+        - traefik.http.routers.${STACK_NAME?Variable not set}-flower-http.middlewares=${STACK_NAME?Variable not set}-https-redirect
+        - traefik.http.routers.${STACK_NAME?Variable not set}-flower-https.rule=Host(`flower.${DOMAIN?Variable not set}`)
+        - traefik.http.routers.${STACK_NAME?Variable not set}-flower-https.entrypoints=https
+        - traefik.http.routers.${STACK_NAME?Variable not set}-flower-https.tls=true
+        - traefik.http.routers.${STACK_NAME?Variable not set}-flower-https.tls.certresolver=le
+        - traefik.http.services.${STACK_NAME?Variable not set}-flower.loadbalancer.server.port=5555
+  
+  backend:
+    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
+    depends_on:
+      - db
+    env_file:
+      - .env
     environment:
-      KAFKA_BROKERCONNECT: kafka1:19092
-    networks:
-      - harena-logger
-
+      - SERVER_NAME=${DOMAIN?Variable not set}
+      - SERVER_HOST=https://${DOMAIN?Variable not set}
+      # Allow explicit env var override for tests
+      - SMTP_HOST=${SMTP_HOST}
+    build:
+      context: ./backend
+      dockerfile: backend.dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-false}
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+        - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)
+        - traefik.http.services.${STACK_NAME?Variable not set}-backend.loadbalancer.server.port=80
+  
+  celeryworker:
+    image: '${DOCKER_IMAGE_CELERYWORKER?Variable not set}:${TAG-latest}'
+    depends_on:
+      - db
+      - queue
+    env_file:
+      - .env
+    environment:
+      - SERVER_NAME=${DOMAIN?Variable not set}
+      - SERVER_HOST=https://${DOMAIN?Variable not set}
+      # Allow explicit env var override for tests
+      - SMTP_HOST=${SMTP_HOST?Variable not set}
+    build:
+      context: ./backend
+      dockerfile: celeryworker.dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-false}
+  
+  frontend:
+    image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
+    build:
+      context: ./frontend
+      args:
+        FRONTEND_ENV: ${FRONTEND_ENV-production}
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+        - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.rule=PathPrefix(`/`)
+        - traefik.http.services.${STACK_NAME?Variable not set}-frontend.loadbalancer.server.port=80
 
 volumes:
-  harena_logger_mongodb_data:
-  harena_logger_kafka_zoo1_data:
-  harena_logger_kafka_zoo1_datalog:
-  harena_logger_kafka1_data:
-  
+  app-db-data:
 
 networks:
-  harena-logger:
-    driver: bridge  
+  traefik-public:
+    # Allow setting it to false for testing
+    external: ${TRAEFIK_PUBLIC_NETWORK_IS_EXTERNAL-true}
