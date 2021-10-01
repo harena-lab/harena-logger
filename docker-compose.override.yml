@@ -1,6 +1,14 @@
 version: "3.3"
 services:
 
+  mongo:
+    ports:
+    - "27017:27017"
+
+  mongo-express:
+    ports:
+      - "8091:8091"
+
   proxy:
     ports:
       - "80:80"

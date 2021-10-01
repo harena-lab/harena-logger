@@ -68,6 +68,31 @@ services:
         # to disable www redirection remove the section: ${STACK_NAME?Variable not set}-www-redirect,
         - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.middlewares=${STACK_NAME?Variable not set}-www-redirect,${STACK_NAME?Variable not set}-https-redirect
 
+  mongo:
+    image: bitnami/mongodb
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    env_file:
+      - .env
+    volumes:
+    - mongo-db-data:/bitnami/mongodb
+    deploy:
+      placement:
+        constraints:
+          - node.labels.${STACK_NAME?Variable not set}.mongo-db-data == true
+
+  mongo-express:
+    image: mongo-express
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+
+
   db:
     image: postgres:12
     volumes:
@@ -193,6 +218,7 @@ services:
 
 volumes:
   app-db-data:
+  mongo-db-data:
 
 networks:
   traefik-public:
