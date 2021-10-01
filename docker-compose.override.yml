@@ -8,6 +8,19 @@ services:
   mongo-express:
     ports:
       - "8081:8081"
+  zookeeper:
+    ports:
+      - "2181:2181"
+
+  kafdrop:
+    ports:
+      - "19000:9000"
+
+  brokerkafka:
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+
 
   proxy:
     ports:

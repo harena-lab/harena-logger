@@ -8,7 +8,7 @@ client_sentry = Client(settings.SENTRY_DSN)
 
 app = faust.App(
     'harena-logger',
-    broker='kafka://kafkabroker:9092',
+    broker='kafka://localhost:9092',
     value_serializer='raw',
 )
 

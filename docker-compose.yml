@@ -93,30 +93,35 @@ services:
       - mongo
 
   zookeeper:
-    image: 'bitnami/zookeeper:latest'
+    image: bitnami/zookeeper
     networks:
       - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
       - default
-    ports:
-      - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
-  kafkabroker:
-    image: 'bitnami/kafka:latest'
+  brokerkafka:
+    image: bitnami/kafka
     networks:
       - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
       - default
-    ports:
-      - '9092:9092'
     environment:
       - KAFKA_BROKER_ID=1
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
+
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    depends_on:
+      - brokerkafka
+    environment:
+      - KAFKA_BROKERCONNECT=brokerkafka:29092
 
 
   db:
@@ -215,7 +220,7 @@ services:
     image: '${DOCKER_IMAGE_CELERYWORKER?Variable not set}:${TAG-latest}'
     depends_on:
       - db
-      - queue
+      - brokerkafka
     env_file:
       - .env
     environment:
@@ -223,6 +228,9 @@ services:
       - SERVER_HOST=https://${DOMAIN?Variable not set}
       # Allow explicit env var override for tests
       - SMTP_HOST=${SMTP_HOST?Variable not set}
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
     build:
       context: ./backend
       dockerfile: celeryworker.dockerfile
