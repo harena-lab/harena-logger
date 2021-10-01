@@ -27,6 +27,7 @@ def test_mongodb(
     Test Celery worker.
     """
     # TODO: remove credentials from here and init db
+    example_sender()
     print("testing")
     connect(db='logger-dev', host='mongo', port=27017, username='logger', password='harena')
     input = Test2(name=msg.msg)
@@ -57,3 +58,26 @@ def test_email(
     """
     send_test_email(email_to=email_to)
     return {"msg": "Test email sent"}
+
+
+# TODO: FIX FAUST
+# import faust
+#
+# class Greeting(faust.Record):
+#     from_name: str
+#     to_name: str
+#
+# app2 = faust.App('hello-app', broker='kafka://localhost')
+# topic = app2.topic('hello-topic', value_type=Greeting)
+#
+# @app2.agent(topic)
+# async def hello(greetings):
+#     async for greeting in greetings:
+#         print(f'Hello from {greeting.from_name} to {greeting.to_name}')
+#
+# @app2.timer(interval=1.0)
+# async def example_sender(app2):
+#     await hello.send(
+#         value=Greeting(from_name='Faust', to_name='you'),
+#     )
+

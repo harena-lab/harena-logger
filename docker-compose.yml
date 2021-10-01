@@ -102,7 +102,7 @@ services:
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
-  kafka:
+  kafkabroker:
     image: 'bitnami/kafka:latest'
     networks:
       - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
