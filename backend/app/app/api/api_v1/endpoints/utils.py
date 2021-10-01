@@ -9,27 +9,31 @@ from app.core.celery_app import celery_app
 from app.utils import send_test_email
 import json
 
-from mongoengine import connect, Document, BooleanField, ObjectIdField
+from mongoengine import connect, Document, BooleanField, ObjectIdField, StringField
 
 router = APIRouter()
 
-class Test(Document):
-    id = ObjectIdField
-    inserted = BooleanField
+class Test2(Document):
+    _id = ObjectIdField()
+    name = StringField()
 
 
 @router.post("/test-mongodb/", response_model=schemas.Msg, status_code=201)
-def test_celery(
+def test_mongodb(
     msg: schemas.Msg,
     current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
     Test Celery worker.
     """
-    connect(db='logger-dev', host='0.0.0.0', port=27017, username=logger, password=harena)
+    # TODO: remove credentials from here and init db
     print("testing")
-    test_json = json.loads(Test.objects().to_json())
-    return {"test_list": test_json}
+    connect(db='logger-dev', host='mongo', port=27017, username='logger', password='harena')
+    input = Test2(name=msg.msg)
+    input.save()
+    test_json = json.loads(Test2.objects().to_json())
+    print(test_json)
+    return {"msg": str(test_json)}
 
 @router.post("/test-celery/", response_model=schemas.Msg, status_code=201)
 def test_celery(
