@@ -1,7 +1,22 @@
-from celery import Celery
-try:
-    celery_app = Celery("worker", broker="amqp://guest@queue//")
+import faust
+import kafka
+import json
 
-    celery_app.conf.task_routes = {"app.worker.test_celery": "main-queue"}
-except:
-    pass
+class Greeting(faust.Record, serializer='json'):
+    from_name: str
+    to_name: str
+
+app = faust.App(
+    'harena-logger',
+    broker='kafka://brokerkafka:9092',
+    value_serializer='raw',
+)
+topic = app.topic('greetings2', value_type=Greeting)
+
+producer = kafka.KafkaProducer(bootstrap_servers=['brokerkafka:9092'],
+                               value_serializer=lambda x:
+                               x.dumps())
+
+def synchronousSend(topicname, data):
+    future = producer.send(topicname, value=data)
+    record_metadata = future.get(timeout=10)

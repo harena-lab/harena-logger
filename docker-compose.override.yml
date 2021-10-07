@@ -14,7 +14,7 @@ services:
 
   kafdrop:
     ports:
-      - "19000:19000"
+      - "9000:9000"
 
   brokerkafka:
     ports:

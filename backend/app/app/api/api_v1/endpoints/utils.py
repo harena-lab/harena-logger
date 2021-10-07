@@ -5,7 +5,7 @@ from pydantic.networks import EmailStr
 
 from app import models, schemas
 from app.api import deps
-from app.core.celery_app import celery_app
+from app.core.celery_app import app, Greeting, topic, synchronousSend
 from app.utils import send_test_email
 import json
 
@@ -44,7 +44,8 @@ def test_celery(
     """
     Test Celery worker.
     """
-    celery_app.send_task("app.worker.test_celery", args=[msg.msg])
+    data = Greeting(from_name='Utilss', to_name='you')
+    synchronousSend('greetings2', data)
     return {"msg": "Word received"}
 
 
@@ -58,26 +59,4 @@ def test_email(
     """
     send_test_email(email_to=email_to)
     return {"msg": "Test email sent"}
-
-
-# TODO: FIX FAUST
-# import faust
-#
-# class Greeting(faust.Record):
-#     from_name: str
-#     to_name: str
-#
-# app2 = faust.App('hello-app', broker='kafka://localhost')
-# topic = app2.topic('hello-topic', value_type=Greeting)
-#
-# @app2.agent(topic)
-# async def hello(greetings):
-#     async for greeting in greetings:
-#         print(f'Hello from {greeting.from_name} to {greeting.to_name}')
-#
-# @app2.timer(interval=1.0)
-# async def example_sender(app2):
-#     await hello.send(
-#         value=Greeting(from_name='Faust', to_name='you'),
-#     )
 
