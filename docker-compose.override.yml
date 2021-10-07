@@ -3,7 +3,7 @@ services:
 
   mongo:
     ports:
-    - "27017:27017"
+      - "27017:27017"
 
   mongo-express:
     ports:
@@ -14,7 +14,7 @@ services:
 
   kafdrop:
     ports:
-      - "19000:9000"
+      - "19000:19000"
 
   brokerkafka:
     ports:

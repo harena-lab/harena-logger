@@ -121,7 +121,7 @@ services:
     depends_on:
       - brokerkafka
     environment:
-      - KAFKA_BROKERCONNECT=brokerkafka:29092
+      - KAFKA_BROKERCONNECT=brokerkafka:9092
 
 
   db:
@@ -197,8 +197,13 @@ services:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     depends_on:
       - db
+      - brokerkafka
+      - mongo
     env_file:
       - .env
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
     environment:
       - SERVER_NAME=${DOMAIN?Variable not set}
       - SERVER_HOST=https://${DOMAIN?Variable not set}
@@ -221,6 +226,7 @@ services:
     depends_on:
       - db
       - brokerkafka
+      - mongo
     env_file:
       - .env
     environment:
