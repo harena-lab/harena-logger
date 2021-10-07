@@ -6,12 +6,12 @@ class Greeting(faust.Record, serializer='json'):
     from_name: str
     to_name: str
 
-app = faust.App(
+faust_app = faust.App(
     'harena-logger',
     broker='kafka://brokerkafka:9092',
     value_serializer='raw',
 )
-topic = app.topic('greetings2', value_type=Greeting)
+topic = faust_app.topic('greetings2', value_type=Greeting)
 
 producer = kafka.KafkaProducer(bootstrap_servers=['brokerkafka:9092'],
                                value_serializer=lambda x:

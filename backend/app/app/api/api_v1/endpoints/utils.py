@@ -5,7 +5,7 @@ from pydantic.networks import EmailStr
 
 from app import models, schemas
 from app.api import deps
-from app.core.celery_app import app, Greeting, topic, synchronousSend
+from app.core.kafka_app import faust_app, Greeting, topic, synchronousSend
 from app.utils import send_test_email
 import json
 
@@ -27,7 +27,6 @@ def test_mongodb(
     Test Celery worker.
     """
     # TODO: remove credentials from here and init db
-    example_sender()
     print("testing")
     connect(db='logger-dev', host='mongo', port=27017, username='logger', password='harena')
     input = Test2(name=msg.msg)
