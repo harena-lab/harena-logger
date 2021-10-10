@@ -1,6 +1,27 @@
 version: "3.3"
 services:
 
+  mongo:
+    ports:
+      - "27017:27017"
+
+  mongo-express:
+    ports:
+      - "8081:8081"
+  zookeeper:
+    ports:
+      - "2181:2181"
+
+  kafdrop:
+    ports:
+      - "9000:9000"
+
+  brokerkafka:
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+
+
   proxy:
     ports:
       - "80:80"
@@ -32,10 +53,6 @@ services:
     ports:
       - "5050:5050"
 
-  flower:
-    ports:
-      - "5555:5555"
-
   backend:
     ports:
       - "8888:8888"
@@ -62,7 +79,7 @@ services:
     volumes:
       - ./backend/app:/app
     environment:
-      - RUN=celery worker -A app.worker -l info -Q main-queue -c 1
+      - RUN=faust -A app.worker worker -l info
       - JUPYTER=jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.custom_display_url=http://127.0.0.1:8888
       - SERVER_HOST=http://${DOMAIN?Variable not set}
     build:

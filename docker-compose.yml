@@ -68,6 +68,62 @@ services:
         # to disable www redirection remove the section: ${STACK_NAME?Variable not set}-www-redirect,
         - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.middlewares=${STACK_NAME?Variable not set}-www-redirect,${STACK_NAME?Variable not set}-https-redirect
 
+  mongo:
+    image: bitnami/mongodb
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    env_file:
+      - .env
+    volumes:
+    - mongo-db-data:/bitnami/mongodb
+    deploy:
+      placement:
+        constraints:
+          - node.labels.${STACK_NAME?Variable not set}.mongo-db-data == true
+
+  mongo-express:
+    image: mongo-express
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+
+  zookeeper:
+    image: bitnami/zookeeper
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  brokerkafka:
+    image: bitnami/kafka
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    depends_on:
+      - brokerkafka
+    environment:
+      - KAFKA_BROKERCONNECT=brokerkafka:9092
+
+
   db:
     image: postgres:12
     volumes:
@@ -141,8 +197,13 @@ services:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     depends_on:
       - db
+      - brokerkafka
+      - mongo
     env_file:
       - .env
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
     environment:
       - SERVER_NAME=${DOMAIN?Variable not set}
       - SERVER_HOST=https://${DOMAIN?Variable not set}
@@ -164,7 +225,8 @@ services:
     image: '${DOCKER_IMAGE_CELERYWORKER?Variable not set}:${TAG-latest}'
     depends_on:
       - db
-      - queue
+      - brokerkafka
+      - mongo
     env_file:
       - .env
     environment:
@@ -172,6 +234,9 @@ services:
       - SERVER_HOST=https://${DOMAIN?Variable not set}
       # Allow explicit env var override for tests
       - SMTP_HOST=${SMTP_HOST?Variable not set}
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
     build:
       context: ./backend
       dockerfile: celeryworker.dockerfile
@@ -193,6 +258,7 @@ services:
 
 volumes:
   app-db-data:
+  mongo-db-data:
 
 networks:
   traefik-public:

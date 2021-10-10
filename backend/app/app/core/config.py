@@ -79,7 +79,7 @@ class Settings(BaseSettings):
 
     EMAIL_TEST_USER: str = "logger@harenaloggerurl.com"  # type: ignore
     FIRST_SUPERUSER: str = "logger@harenaloggerurl.com"
-    FIRST_SUPERUSER_PASSWORD: str
+    FIRST_SUPERUSER_PASSWORD: str = "harena"
     USERS_OPEN_REGISTRATION: bool = False
 
     class Config:
