@@ -14,8 +14,7 @@ faust_app = faust.App(
 topic = faust_app.topic('greetings2', value_type=Greeting)
 
 producer = kafka.KafkaProducer(bootstrap_servers=['brokerkafka:9092'],
-                               value_serializer=lambda x:
-                               x.dumps())
+                               value_serializer=lambda x: x.dumps())
 
 def synchronousSend(topicname, data):
     future = producer.send(topicname, value=data)

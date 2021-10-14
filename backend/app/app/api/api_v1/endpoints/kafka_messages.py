@@ -22,4 +22,4 @@ def create_kafka_message(
     kafka_message_in.origin_ip = request.client.host
     kafka_message_document = models.KafkaMessageRecord(case=kafka_message_in.case, payload=kafka_message_in.payload, event=kafka_message_in.event, origin_ip=kafka_message_in.origin_ip)
     synchronousSend('log_raw_default', kafka_message_document)
-    return {'success': True}
+    return kafka_message_in
