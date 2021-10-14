@@ -8,7 +8,7 @@ default_context:
   secret_key: '1bf8c31d9cc5ffec1772b6e279eb595d65164861293aad6b543a72957d2de68b'
   first_superuser: 'logger'
   first_superuser_password: 'harena'
-  backend_cors_origins: '["http://localhost", "http://localhost:4200", "http://localhost:3000", "http://localhost:8080", "https://localhost", "https://localhost:4200", "https://localhost:3000", "https://localhost:8080", "http://dev.harenaloggerurl.com", "https://stag.harenaloggerurl.com", "https://harenaloggerurl.com", "http://local.dockertoolbox.tiangolo.com", "http://localhost.tiangolo.com"]'
+  backend_cors_origins: '["http://localhost", "http://localhost:10010", "https://localhost:10010", "http://localhost:4200", "http://localhost:3000", "http://localhost:8080", "https://localhost", "https://localhost:4200", "https://localhost:3000", "https://localhost:8080", "http://dev.harenaloggerurl.com", "https://stag.harenaloggerurl.com", "https://harenaloggerurl.com", "http://local.dockertoolbox.tiangolo.com", "http://localhost.tiangolo.com"]'
   smtp_port: '587'
   smtp_host: ''
   smtp_user: ''
