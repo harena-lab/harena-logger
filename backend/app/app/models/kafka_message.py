@@ -4,20 +4,18 @@ from datetime import  datetime
 
 class KafkaMessageDocument(Document):
     _id = ObjectIdField()
-    session_id = IntField()
-    user_id = IntField()
-    case_id = IntField()
-    knot_id = IntField()
-    timestamp = DateTimeField()
-    hipothesis = StringField()
-    origin_ip = StringField()
+    version: StringField()
+    topic: StringField()
+    payload_metadata: StringField()
+    payload_body: StringField()
+    timestamp: DateTimeField()
+    origin_ip: StringField()
 
 class KafkaMessageRecord(Record, serializer='json'):
-    origin_ip: str
-    session_id: int
-    user_id: int
-    case_id: int
-    knot_id: int
-    timestamp: datetime
-    hipothesis: str
+    version: Optional[str] = None
+    topic: Optional[str] = None
+    payload_metadata: Optional[str] = None
+    payload_body: Optional[str] = None
+    timestamp: Optional[datetime] = None
+    origin_ip: Optional[str] = None
 

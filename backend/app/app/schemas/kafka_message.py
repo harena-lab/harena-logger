@@ -5,23 +5,22 @@ from pydantic import BaseModel, EmailStr
 
 # Shared properties
 class KafkaMessageBase(BaseModel):
-    session_id: Optional[int] = None
-    user_id: Optional[int] = None
-    case_id: Optional[int] = None
-    knot_id: Optional[int] = None
+    version: Optional[str] = None
+    topic: Optional[str] = None
+    payload_metadata: Optional[str] = None
+    payload_body: Optional[str] = None
     timestamp: Optional[datetime] = None
-    hipothesis: Optional[str] = None
     origin_ip: Optional[str] = None
 
 
 # Properties to receive via API on creation
 class KafkaMessageCreate(KafkaMessageBase):
-    session_id: int
-    user_id: int
-    case_id: int
-    knot_id: int
+    version: str
+    topic: str
+    payload_metadata: str
+    payload_body: str
     timestamp: datetime
-    hipothesis: str
+    origin_ip: str
 
 
 class KafkaMessage(KafkaMessageBase):
