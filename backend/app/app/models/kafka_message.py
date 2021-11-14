@@ -4,14 +4,14 @@ from datetime import  datetime
 
 class KafkaMessageDocument(Document):
     _id = ObjectIdField()
-    version: StringField()
-    topic: StringField()
-    payload_metadata: StringField()
-    payload_body: StringField()
-    message_class: StringField()
-    message_subclass: StringField()
-    timestamp: DateTimeField()
-    origin_ip: StringField()
+    version = StringField()
+    topic = StringField()
+    payload_metadata = StringField()
+    payload_body = StringField()
+    message_class = StringField()
+    message_subclass = StringField()
+    timestamp = DateTimeField()
+    origin_ip = StringField()
 
 class KafkaMessageRecord(Record, serializer='json'):
     version: str
