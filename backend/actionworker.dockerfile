@@ -28,8 +28,8 @@ WORKDIR /app
 
 ENV PYTHONPATH=/app
 
-COPY ./app/consumer/action-worker-start.sh /consumer/action-worker-start.sh
+COPY ./app/app/consumers/action-worker-start.sh /consumers/action-worker-start.sh
 
-RUN chmod +x /consumer/action-worker-start.sh
+RUN chmod +x /consumers/action-worker-start.sh
 
-CMD ["bash", "/consumer/action-worker-start.sh"]
+CMD ["bash", "/consumers/action-worker-start.sh"]

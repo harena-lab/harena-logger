@@ -8,22 +8,22 @@ client_sentry = Client(settings.SENTRY_DSN)
 
 connect(db='logger-dev', host='mongo', port=27017, username='logger', password='harena')
 
-kafka_messages_topic = app.topic('log_raw_default', value_type=KafkaMessageRecord)
+kafka_messages_topic = app.topic('user_action', value_type=KafkaMessageRecord)
 
 @app.agent(kafka_messages_topic)
 async def sendKafkaMessageToMongoDB(kafka_messages):
     async for kafka_msg in kafka_messages:
-        input = KafkaMessageDocument(case=kafka_msg.case, payload=kafka_msg.payload, event=kafka_msg.event, origin_ip=kafka_msg.origin_ip)
+        input = KafkaMessageDocument(version=kafka_msg.version, topic=kafka_msg.topic,
+                                     message_class=kafka_msg.message_class, message_subclass=kafka_msg.message_subclass,
+                                     payload_metadata=kafka_msg.payload_metadata, payload_body=kafka_msg.payload_body,
+                                     timestamp=kafka_msg.timestamp, origin_ip=kafka_msg.origin_ip)
+
         input.save()
         print('Saved case: ' + str(input.case) + ' event ' + input.event + 'to MongoDB')
 
-@app.agent(topic)
-async def hello(greetings):
-    async for greeting in greetings:
-        print(f'Hello from {greeting.from_name} to {greeting.to_name}')
 
-@app.timer(interval=10.0)
+@app.timer(interval=120.0)
 async def example_sender(faust_app):
     await topic.send(
-        value=Greeting(from_name='Faust', to_name='you').dumps()
+        value=Greeting(from_name='Action Worker', to_name='Kafka').dumps()
     )

@@ -1,14 +1,13 @@
 import logging
 
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
-
-from app.db.session import SessionLocal
+from app.core.kafka_app import synchronousSend, Greeting
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-max_tries = 60 * 5  # 5 minutes
-wait_seconds = 1
+max_tries = 30  # 5 minutes
+wait_seconds = 4
 
 # TODO: fix pre start worker
 @retry(
@@ -19,18 +18,16 @@ wait_seconds = 1
 )
 def init() -> None:
     try:
-        # Try to create session to check if DB is awake
-        db = SessionLocal()
-        db.execute("SELECT 1")
+        synchronousSend("boot", Greeting(from_name='System Worker', to_name='Boot'))
     except Exception as e:
         logger.error(e)
         raise e
 
 
 def main() -> None:
-    logger.info("Initializing service")
+    logger.info("Initializing System Worker")
     init()
-    logger.info("Service finished initializing")
+    logger.info("System Worker finished initializing")
 
 
 if __name__ == "__main__":
