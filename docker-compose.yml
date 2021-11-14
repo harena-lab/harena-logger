@@ -221,8 +221,8 @@ services:
         - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)
         - traefik.http.services.${STACK_NAME?Variable not set}-backend.loadbalancer.server.port=80
   
-  celeryworker:
-    image: '${DOCKER_IMAGE_CELERYWORKER?Variable not set}:${TAG-latest}'
+  actionworker:
+    image: '${DOCKER_IMAGE_ACTIONWORKER?Variable not set}:${TAG-latest}'
     depends_on:
       - db
       - brokerkafka
@@ -239,7 +239,29 @@ services:
       - default
     build:
       context: ./backend
-      dockerfile: celeryworker.dockerfile
+      dockerfile: systemworker.dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-false}
+
+  systemworker:
+    image: '${DOCKER_IMAGE_SYSTEMWORKER?Variable not set}:${TAG-latest}'
+    depends_on:
+      - db
+      - brokerkafka
+      - mongo
+    env_file:
+      - .env
+    environment:
+      - SERVER_NAME=${DOMAIN?Variable not set}
+      - SERVER_HOST=https://${DOMAIN?Variable not set}
+      # Allow explicit env var override for tests
+      - SMTP_HOST=${SMTP_HOST?Variable not set}
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+    build:
+      context: ./backend
+      dockerfile: actionworker.dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV-false}
   
