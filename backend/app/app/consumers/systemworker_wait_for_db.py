@@ -1,7 +1,6 @@
 import logging
 
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
-from app.core.kafka_app import synchronousSend, Greeting
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,6 +17,7 @@ wait_seconds = 4
 )
 def init() -> None:
     try:
+        from app.core.kafka_app import synchronousSend, Greeting
         synchronousSend("boot", Greeting(from_name='System Worker', to_name='Boot'))
     except Exception as e:
         logger.error(e)

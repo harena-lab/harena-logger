@@ -20,7 +20,7 @@ async def sendKafkaMessageToMongoDB(kafka_messages):
                                      payload_metadata=kafka_msg.payload_metadata, payload_body=kafka_msg.payload_body,
                                      timestamp=kafka_msg.timestamp, origin_ip=kafka_msg.origin_ip)
         input.save()
-        print('Saved case: ' + str(input.message_class) + ' event ' + input.message_subclass + 'to MongoDB')
+        print('Saved case: ' + str(input.message_class) + ' event ' + input.message_subclass + ' to MongoDB')
 
 @app.agent(topic)
 async def hello(greetings):

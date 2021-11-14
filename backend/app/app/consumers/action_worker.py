@@ -19,7 +19,7 @@ async def sendKafkaMessageToMongoDB(kafka_messages):
                                      timestamp=kafka_msg.timestamp, origin_ip=kafka_msg.origin_ip)
 
         input.save()
-        print('Saved case: ' + str(input.message_class) + ' event ' + input.message_subclass + 'to MongoDB')
+        print('Saved case: ' + str(input.message_class) + ' event ' + input.message_subclass + ' to MongoDB')
 
 
 @app.timer(interval=120.0)
