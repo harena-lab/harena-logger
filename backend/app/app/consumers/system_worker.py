@@ -1,7 +1,7 @@
 from raven import Client
 from app.core.config import settings
 from app.core.kafka_app import faust_app as app, topic, Greeting
-from app.models import KafkaMessageDocument, KafkaMessageRecord
+from app.models import SystemMessageDocument, KafkaMessageRecord
 from mongoengine import connect
 
 client_sentry = Client(settings.SENTRY_DSN)
@@ -15,7 +15,7 @@ boot_topic = app.topic('boot', value_type=Greeting)
 @app.agent(kafka_messages_topic)
 async def sendKafkaMessageToMongoDB(kafka_messages):
     async for kafka_msg in kafka_messages:
-        input = KafkaMessageDocument(version=kafka_msg.version, topic=kafka_msg.topic,
+        input = SystemMessageDocument(version=kafka_msg.version, topic=kafka_msg.topic,
                                      message_class=kafka_msg.message_class, message_subclass=kafka_msg.message_subclass,
                                      payload_metadata=kafka_msg.payload_metadata, payload_body=kafka_msg.payload_body,
                                      timestamp=kafka_msg.timestamp, origin_ip=kafka_msg.origin_ip)
