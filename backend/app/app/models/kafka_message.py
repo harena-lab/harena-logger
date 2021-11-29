@@ -3,8 +3,6 @@ from faust import Record
 from datetime import  datetime
 
 class KafkaMessageDocument(Document):
-    meta = {'allow_inheritance': True}
-
     _id = ObjectIdField()
     version = StringField()
     topic = StringField()
@@ -15,12 +13,28 @@ class KafkaMessageDocument(Document):
     timestamp = DateTimeField()
     origin_ip = StringField()
 
-class UserActionDocument(KafkaMessageDocument):
-    pass
+class UserActionDocument(Document):
+    _id = ObjectIdField()
+    version = StringField()
+    topic = StringField()
+    payload_metadata = StringField()
+    payload_body = StringField()
+    message_class = StringField()
+    message_subclass = StringField()
+    timestamp = DateTimeField()
+    origin_ip = StringField()
 
 
-class SystemMessageDocument(KafkaMessageDocument):
-    pass
+class SystemMessageDocument(Document):
+    _id = ObjectIdField()
+    version = StringField()
+    topic = StringField()
+    payload_metadata = StringField()
+    payload_body = StringField()
+    message_class = StringField()
+    message_subclass = StringField()
+    timestamp = DateTimeField()
+    origin_ip = StringField()
 
 
 class KafkaMessageRecord(Record, serializer='json'):

@@ -10,6 +10,15 @@ services:
     restart: always
     ports:
       - "8081:8081"
+    labels:
+      - traefik.enable=true
+      - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mongo-express.rule=Host(`mongo-express.${DOMAIN?Variable not set}`)
+      - traefik.http.services.${STACK_NAME?Variable not set}-mongo-express.loadbalancer.server.port=8081
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mongo-express.middlewares=${STACK_NAME?Variable not set}-mongo-express-basicauth
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-mongo-express-basicauth.basicauth.removeheader=true
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-mongo-express-basicauth.basicauth.users=${TRAEFIK_USERS?Variable not set}
+
   zookeeper:
     ports:
       - "2181:2181"
@@ -18,6 +27,14 @@ services:
     restart: always
     ports:
       - "9000:9000"
+    labels:
+      - traefik.enable=true
+      - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+      - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop.rule=Host(`kafdrop.${DOMAIN?Variable not set}`)
+      - traefik.http.services.${STACK_NAME?Variable not set}-kafdrop.loadbalancer.server.port=9000
+      - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop.middlewares=${STACK_NAME?Variable not set}-kafdrop-basicauth
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-kafdrop-basicauth.basicauth.removeheader=true
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-kafdrop-basicauth.basicauth.users=${TRAEFIK_USERS?Variable not set}
 
   brokerkafka:
     restart: always
@@ -37,7 +54,7 @@ services:
       # from the env var TRAEFIK_TAG
       - --providers.docker.constraints=Label(`traefik.constraint-label-stack`, `${TRAEFIK_TAG?Variable not set}`)
       # Do not expose all Docker services, only the ones explicitly exposed
-      - --providers.docker.exposedbydefault=true
+      - --providers.docker.exposedbydefault=false
       # Disable Docker Swarm mode for local development
       # - --providers.docker.swarmmode
       # Enable the access log, with HTTP requests
@@ -48,10 +65,8 @@ services:
       - --api
       # Enable the Dashboard and API in insecure mode for local development
       - --api.insecure=true
-#    labels:
-#      - traefik.enable=true
-#      - traefik.http.routers.${STACK_NAME?Variable not set}-traefik-public-http.rule=Host(`${DOMAIN?Variable not set}`)
-#      - traefik.http.services.${STACK_NAME?Variable not set}-traefik-public.loadbalancer.server.port=80
+    labels:
+      - traefik.enable=true
 
   backend:
     ports:
@@ -69,6 +84,11 @@ services:
         INSTALL_JUPYTER: ${INSTALL_JUPYTER-true}
     # command: bash -c "while true; do sleep 1; done"  # Infinite loop to keep container live doing nothing
     command: /start-reload.sh
+    labels:
+      - traefik.enable=true
+      - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+      - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)
+      - traefik.http.services.${STACK_NAME?Variable not set}-backend.loadbalancer.server.port=80
 
 
   actionworker:

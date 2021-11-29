@@ -32,7 +32,7 @@ services:
       # Enable the Traefik log, for configurations and errors
       - --log
       # Enable the Dashboard and API
-      - --api
+#      - --api
     deploy:
       placement:
         constraints:
@@ -71,7 +71,7 @@ services:
         # Redirect a domain without www to www
         # To enable it remove the previous line and uncomment the next
         # - traefik.http.middlewares.${STACK_NAME}-www-redirect.redirectregex.replacement=https://www.${DOMAIN}/$${3}
-        # Middleware to redirect www, to disable it remove the next line 
+        # Middleware to redirect www, to disable it remove the next line
         - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
         # Middleware to redirect www, and redirect HTTP to HTTPS
         # to disable www redirection remove the section: ${STACK_NAME?Variable not set}-www-redirect,
@@ -112,12 +112,13 @@ services:
 #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls=true
 #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls.certresolver=le
 #        - traefik.http.services.${STACK_NAME?Variable not set}-mongoexpress.loadbalancer.server.port=8081
-        - traefik.frontend.rule=Host:mongoexpress.${DOMAIN?Variable not set}
-        - traefik.enable=true
-        - traefik.port=8081
-        - traefik.frontend.entryPoints=http,https
-        - traefik.frontend.redirect.entryPoint=https
-        - traefik.frontend.auth.basic.users=${TRAEFIK_USERS?Variable not set}
+      - traefik.enable=true
+      - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mongo-express.rule=Host(`mongo-express.${DOMAIN?Variable not set}`)
+      - traefik.http.services.${STACK_NAME?Variable not set}-mongo-express.loadbalancer.server.port=8081
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mongo-express.middlewares=${STACK_NAME?Variable not set}-mongo-express-basicauth
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-mongo-express-basicauth.basicauth.removeheader=true
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-mongo-express-basicauth.basicauth.users=${TRAEFIK_USERS?Variable not set}
 
   zookeeper:
     image: bitnami/zookeeper
@@ -150,25 +151,14 @@ services:
       - .env
     deploy:
       labels:
-#        - traefik.enable=true
-#        - traefik.constraint-label=${TRAEFIK_TAG?Variable not set}
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-http.entrypoints=http
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.rule=Host(`kafdrop.${DOMAIN?Variable not set}`)
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.entrypoints=https
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.tls=true
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.tls.certresolver=le
-#        - traefik.http.services.${STACK_NAME?Variable not set}-kafdrop.loadbalancer.server.port=9000
-#        - traefik.http.middlewares.{STACK_NAME?Variable not set}-kafdrop.basicauth.removeheader=true
-#        - traefik.http.middlewares.{STACK_NAME?Variable not set}-kafdrop.basicauth.users={TRAEFIK_USERS?Variable not set}
-#        - traefik.http.middlewares.{STACK_NAME?Variable not set}-kafdrop-https-chain.chain.middlewares=${STACK_NAME?Variable not set}-https-redirect,{STACK_NAME?Variable not set}-kafdrop
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.middlewares={STACK_NAME?Variable not set}-kafdrop-https-chain
-      - traefik.constraint-label=${TRAEFIK_TAG?Variable not set}
-      - traefik.frontend.rule=Host:kafdrop.${DOMAIN?Variable not set}
       - traefik.enable=true
-      - traefik.port=9000
-      - traefik.frontend.entryPoints=http,https
-      - traefik.frontend.redirect.entryPoint=https
-      - traefik.frontend.auth.basic.users=${TRAEFIK_USERS?Variable not set}
+      - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+      - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop.rule=Host(`kafdrop.${DOMAIN?Variable not set}`)
+      - traefik.http.services.${STACK_NAME?Variable not set}-kafdrop.loadbalancer.server.port=9000
+      - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop.middlewares=${STACK_NAME?Variable not set}-kafdrop-basicauth
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-kafdrop-basicauth.basicauth.removeheader=true
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-kafdrop-basicauth.basicauth.users=${TRAEFIK_USERS?Variable not set}
+
 
   db:
     image: postgres:12

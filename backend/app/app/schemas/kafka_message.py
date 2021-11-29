@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
 
 # Shared properties
-class KafkaMessageBase(BaseModel):
+class KafkaMessage(BaseModel):
     version: Optional[str] = None
     topic: Optional[str] = None
     message_class: Optional[str] = None
@@ -16,7 +16,7 @@ class KafkaMessageBase(BaseModel):
 
 
 # Properties to receive via API on creation
-class KafkaMessageCreate(KafkaMessageBase):
+class KafkaMessageCreate(KafkaMessage):
     version: str
     topic: str
     message_class: str
@@ -27,5 +27,5 @@ class KafkaMessageCreate(KafkaMessageBase):
     origin_ip: str
 
 
-class KafkaMessage(KafkaMessageBase):
-    pass
+class KafkaMessageList(BaseModel):
+    messages: List[KafkaMessageCreate]
