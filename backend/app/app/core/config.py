@@ -1,5 +1,6 @@
 import secrets
 from typing import Any, Dict, List, Optional, Union
+import os
 
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
 
@@ -56,7 +57,7 @@ class Settings(BaseSettings):
     SMTP_HOST: Optional[str] = None
     SMTP_USER: Optional[str] = None
     SMTP_PASSWORD: Optional[str] = None
-    EMAILS_FROM_EMAIL: str = "logger@harenaloggerurl.com"
+    EMAILS_FROM_EMAIL: str = os.getenv("FIRST_SUPERUSER")
     EMAILS_FROM_NAME: Optional[str] = None
 
     @validator("EMAILS_FROM_NAME")
@@ -77,9 +78,9 @@ class Settings(BaseSettings):
             and values.get("EMAILS_FROM_EMAIL")
         )
 
-    EMAIL_TEST_USER: str = "logger@harenaloggerurl.com"  # type: ignore
-    FIRST_SUPERUSER: str = "logger@harenaloggerurl.com"
-    FIRST_SUPERUSER_PASSWORD: str = "harena"
+    EMAIL_TEST_USER: str = os.getenv("FIRST_SUPERUSER")  # type: ignore
+    FIRST_SUPERUSER: str = os.getenv("FIRST_SUPERUSER")
+    FIRST_SUPERUSER_PASSWORD: str = os.getenv("FIRST_SUPERUSER_PASSWORD")
     USERS_OPEN_REGISTRATION: bool = False
 
     class Config:

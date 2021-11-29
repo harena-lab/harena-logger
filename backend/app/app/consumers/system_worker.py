@@ -2,11 +2,9 @@ from raven import Client
 from app.core.config import settings
 from app.core.kafka_app import faust_app as app, topic, Greeting
 from app.models import SystemMessageDocument, KafkaMessageRecord
-from mongoengine import connect
+from app.db.mongo import connect
 
 client_sentry = Client(settings.SENTRY_DSN)
-
-connect(db='logger-dev', host='mongo', port=27017, username='logger', password='harena')
 
 kafka_messages_topic = app.topic('system_message', value_type=KafkaMessageRecord)
 

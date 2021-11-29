@@ -8,6 +8,15 @@ services:
       - default
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      # Listen on port 80, default for HTTP, necessary to redirect to HTTPS
+      - target: 80
+        published: 80
+        mode: host
+      # Listen on port 443, default for HTTPS
+      - target: 443
+        published: 443
+        mode: host
     command:
       # Enable Docker in Traefik, so that it reads labels from Docker services
       - --providers.docker
@@ -77,6 +86,7 @@ services:
       - .env
     volumes:
     - mongo-db-data:/bitnami/mongodb
+    - ./backend/app/app/db/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh
     deploy:
       placement:
         constraints:
@@ -91,6 +101,23 @@ services:
       - .env
     depends_on:
       - mongo
+    deploy:
+      labels:
+#        - traefik.enable=true
+#        - traefik.constraint-label=${TRAEFIK_TAG?Variable not set}
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.entrypoints=http
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.middlewares=${STACK_NAME?Variable not set}-https-redirect
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.rule=Host(`mongoexpress.${DOMAIN?Variable not set}`)
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.entrypoints=https
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls=true
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls.certresolver=le
+#        - traefik.http.services.${STACK_NAME?Variable not set}-mongoexpress.loadbalancer.server.port=8081
+        - traefik.frontend.rule=Host:mongoexpress.${DOMAIN?Variable not set}
+        - traefik.enable=true
+        - traefik.port=8081
+        - traefik.frontend.entryPoints=http,https
+        - traefik.frontend.redirect.entryPoint=https
+        - traefik.frontend.auth.basic.users=${TRAEFIK_USERS?Variable not set}
 
   zookeeper:
     image: bitnami/zookeeper
@@ -119,8 +146,29 @@ services:
       - default
     depends_on:
       - brokerkafka
-    environment:
-      - KAFKA_BROKERCONNECT=brokerkafka:9092
+    env_file:
+      - .env
+    deploy:
+      labels:
+#        - traefik.enable=true
+#        - traefik.constraint-label=${TRAEFIK_TAG?Variable not set}
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-http.entrypoints=http
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.rule=Host(`kafdrop.${DOMAIN?Variable not set}`)
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.entrypoints=https
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.tls=true
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.tls.certresolver=le
+#        - traefik.http.services.${STACK_NAME?Variable not set}-kafdrop.loadbalancer.server.port=9000
+#        - traefik.http.middlewares.{STACK_NAME?Variable not set}-kafdrop.basicauth.removeheader=true
+#        - traefik.http.middlewares.{STACK_NAME?Variable not set}-kafdrop.basicauth.users={TRAEFIK_USERS?Variable not set}
+#        - traefik.http.middlewares.{STACK_NAME?Variable not set}-kafdrop-https-chain.chain.middlewares=${STACK_NAME?Variable not set}-https-redirect,{STACK_NAME?Variable not set}-kafdrop
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-kafdrop-https.middlewares={STACK_NAME?Variable not set}-kafdrop-https-chain
+      - traefik.constraint-label=${TRAEFIK_TAG?Variable not set}
+      - traefik.frontend.rule=Host:kafdrop.${DOMAIN?Variable not set}
+      - traefik.enable=true
+      - traefik.port=9000
+      - traefik.frontend.entryPoints=http,https
+      - traefik.frontend.redirect.entryPoint=https
+      - traefik.frontend.auth.basic.users=${TRAEFIK_USERS?Variable not set}
 
   db:
     image: postgres:12

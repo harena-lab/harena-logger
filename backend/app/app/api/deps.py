@@ -10,6 +10,7 @@ from app import crud, models, schemas
 from app.core import security
 from app.core.config import settings
 from app.db.session import SessionLocal
+from app.db.mongo import connect
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -22,6 +23,13 @@ def get_db() -> Generator:
         yield db
     finally:
         db.close()
+
+def get_mongo_db() -> Generator:
+    try:
+        db = connect
+        yield db
+    finally:
+        pass
 
 
 def get_current_user(

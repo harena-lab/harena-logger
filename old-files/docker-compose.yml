@@ -25,7 +25,6 @@ services:
       - mongodb
       - zoo1
     restart: always
-    restart: always
     networks:
       - harena-logger
     

@@ -9,31 +9,8 @@ from app.core.kafka_app import faust_app, Greeting, topic, synchronousSend
 from app.utils import send_test_email
 import json
 
-from mongoengine import connect, Document, BooleanField, ObjectIdField, StringField
-
 router = APIRouter()
 
-class Test2(Document):
-    _id = ObjectIdField()
-    name = StringField()
-
-
-@router.post("/test-mongodb/", response_model=schemas.Msg, status_code=201)
-def test_mongodb(
-    msg: schemas.Msg,
-    current_user: models.User = Depends(deps.get_current_active_superuser),
-) -> Any:
-    """
-    Test Celery worker.
-    """
-    # TODO: remove credentials from here and init db
-    print("testing")
-    connect(db='logger-dev', host='mongo', port=27017, username='logger', password='harena')
-    input = Test2(name=msg.msg)
-    input.save()
-    test_json = json.loads(Test2.objects().to_json())
-    print(test_json)
-    return {"msg": str(test_json)}
 
 @router.post("/test-celery/", response_model=schemas.Msg, status_code=201)
 def test_celery(
