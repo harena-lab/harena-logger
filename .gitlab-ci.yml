@@ -41,14 +41,14 @@ deploy-stag:
   stage: deploy
   script: 
     - >
-      DOMAIN=stag.harenaloggerurl.com
-      TRAEFIK_TAG=stag.harenaloggerurl.com
+      DOMAIN=stag.pfg.jacinto-m.harena.org
+      TRAEFIK_TAG=stag.pfg.jacinto-m.harena.org
       STACK_NAME=stag-harenaloggerurl-com
       TAG=stag
       sh ./scripts/deploy.sh
   environment:
     name: staging
-    url: https://stag.harenaloggerurl.com
+    url: https://stag.pfg.jacinto-m.harena.org
   only:
     - master
   tags:
@@ -59,14 +59,14 @@ deploy-prod:
   stage: deploy
   script:
     - >
-      DOMAIN=harenaloggerurl.com
-      TRAEFIK_TAG=harenaloggerurl.com
+      DOMAIN=pfg.jacinto-m.harena.org
+      TRAEFIK_TAG=pfg.jacinto-m.harena.org
       STACK_NAME=harenaloggerurl-com
       TAG=prod
       sh ./scripts/deploy.sh
   environment:
     name: production
-    url: https://harenaloggerurl.com
+    url: https://pfg.jacinto-m.harena.org
   only:
     - production
   tags:
