@@ -13,10 +13,10 @@ services:
       - target: 80
         published: 80
         mode: host
-      # Listen on port 443, default for HTTPS
-      - target: 443
-        published: 443
-        mode: host
+#      # Listen on port 443, default for HTTPS
+#      - target: 443
+#        published: 443
+#        mode: host
     command:
       # Enable Docker in Traefik, so that it reads labels from Docker services
       - --providers.docker
@@ -46,8 +46,8 @@ services:
         # This public Traefik will only use services with this label
         - traefik.constraint-label=${TRAEFIK_PUBLIC_TAG?Variable not set}
         # traefik-http set up only to use the middleware to redirect to https
-        - traefik.http.middlewares.${STACK_NAME?Variable not set}-https-redirect.redirectscheme.scheme=https
-        - traefik.http.middlewares.${STACK_NAME?Variable not set}-https-redirect.redirectscheme.permanent=true
+#        - traefik.http.middlewares.${STACK_NAME?Variable not set}-https-redirect.redirectscheme.scheme=https
+#        - traefik.http.middlewares.${STACK_NAME?Variable not set}-https-redirect.redirectscheme.permanent=true
         # Handle host with and without "www" to redirect to only one of them
         # Uses environment variable DOMAIN
         # To disable www redirection remove the Host() you want to discard, here and
@@ -55,19 +55,19 @@ services:
         - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.rule=Host(`${DOMAIN?Variable not set}`) || Host(`www.${DOMAIN?Variable not set}`)
         - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.entrypoints=http
         # traefik-https the actual router using HTTPS
-        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.rule=Host(`${DOMAIN?Variable not set}`) || Host(`www.${DOMAIN?Variable not set}`)
-        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.entrypoints=https
-        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.tls=true
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.rule=Host(`${DOMAIN?Variable not set}`) || Host(`www.${DOMAIN?Variable not set}`)
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.entrypoints=https
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.tls=true
         # Use the "le" (Let's Encrypt) resolver created below
-        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.tls.certresolver=le
+#        - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-https.tls.certresolver=le
         # Define the port inside of the Docker service to use
         - traefik.http.services.${STACK_NAME?Variable not set}-proxy.loadbalancer.server.port=80
         # Handle domain with and without "www" to redirect to only one
         # To disable www redirection remove the next line
-        - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.regex=^https?://(www.)?(${DOMAIN?Variable not set})/(.*)
+#        - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.regex=^http?://(www.)?(${DOMAIN?Variable not set})/(.*)
         # Redirect a domain with www to non-www
         # To disable it remove the next line
-        - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.replacement=https://${DOMAIN?Variable not set}/$${3}
+#        - traefik.http.middlewares.${STACK_NAME?Variable not set}-www-redirect.redirectregex.replacement=https://${DOMAIN?Variable not set}/$${3}
         # Redirect a domain without www to www
         # To enable it remove the previous line and uncomment the next
         # - traefik.http.middlewares.${STACK_NAME}-www-redirect.redirectregex.replacement=https://www.${DOMAIN}/$${3}
