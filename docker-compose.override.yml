@@ -42,7 +42,6 @@ services:
       - "9092:9092"
       - "29092:29092"
 
-
   proxy:
     ports:
       - "80:80"
@@ -104,6 +103,27 @@ services:
       args:
         INSTALL_DEV: ${INSTALL_DEV-true}
         INSTALL_JUPYTER: ${INSTALL_JUPYTER-true}
+
+  kibana:
+    ports:
+      - "5601:5601"
+    labels:
+      #        - traefik.enable=true
+      #        - traefik.constraint-label=${TRAEFIK_TAG?Variable not set}
+      #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.entrypoints=http
+      #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.middlewares=${STACK_NAME?Variable not set}-https-redirect
+      #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.rule=Host(`mongoexpress.${DOMAIN?Variable not set}`)
+      #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.entrypoints=https
+      #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls=true
+      #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls.certresolver=le
+      #        - traefik.http.services.${STACK_NAME?Variable not set}-mongoexpress.loadbalancer.server.port=8081
+      - traefik.enable=true
+      - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+      - traefik.http.routers.${STACK_NAME?Variable not set}-kibana.rule=Host(`kibana.${DOMAIN?Variable not set}`)
+      - traefik.http.services.${STACK_NAME?Variable not set}-kibana.loadbalancer.server.port=5601
+      - traefik.http.routers.${STACK_NAME?Variable not set}-kibana.middlewares=${STACK_NAME?Variable not set}-kibana-basicauth
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-kibana-basicauth.basicauth.removeheader=true
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-kibana-basicauth.basicauth.users=${TRAEFIK_USERS?Variable not set}
 
   systemworker:
     volumes:

@@ -159,6 +159,60 @@ services:
       - traefik.http.middlewares.${STACK_NAME?Variable not set}-kafdrop-basicauth.basicauth.removeheader=true
       - traefik.http.middlewares.${STACK_NAME?Variable not set}-kafdrop-basicauth.basicauth.users=${TRAEFIK_USERS?Variable not set}
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+    environment:
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+      xpack.monitoring.enabled: "true"
+      xpack.security.enabled: "true"
+      ELASTIC_PASSWORD: ${ELASTICSEARCH_PASSWORD?Variable not set}
+    volumes:
+      - elastic-db-data:/usr/share/elasticsearch/data
+    deploy:
+      placement:
+        constraints:
+          - node.labels.${STACK_NAME?Variable not set}.elastic-db-data == true
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.7.0
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
+      - default
+#    ports:
+#      - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: http://${ELASTICSEARCH_SERVER?Variable not set}:9200
+      ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME?Variable not set}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD?Variable not set}
+    deploy:
+      labels:
+        #        - traefik.enable=true
+        #        - traefik.constraint-label=${TRAEFIK_TAG?Variable not set}
+        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.entrypoints=http
+        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.middlewares=${STACK_NAME?Variable not set}-https-redirect
+        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.rule=Host(`mongoexpress.${DOMAIN?Variable not set}`)
+        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.entrypoints=https
+        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls=true
+        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls.certresolver=le
+        #        - traefik.http.services.${STACK_NAME?Variable not set}-mongoexpress.loadbalancer.server.port=8081
+        - traefik.enable=true
+        - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
+        - traefik.http.routers.${STACK_NAME?Variable not set}-kibana.rule=Host(`kibana.${DOMAIN?Variable not set}`)
+        - traefik.http.services.${STACK_NAME?Variable not set}-kibana.loadbalancer.server.port=5601
+        - traefik.http.routers.${STACK_NAME?Variable not set}-kibana.middlewares=${STACK_NAME?Variable not set}-kibana-basicauth
+        - traefik.http.middlewares.${STACK_NAME?Variable not set}-kibana-basicauth.basicauth.removeheader=true
+        - traefik.http.middlewares.${STACK_NAME?Variable not set}-kibana-basicauth.basicauth.users=${TRAEFIK_USERS?Variable not set}
+    depends_on:
+      - elasticsearch
+
+
 
   db:
     image: postgres:12
@@ -249,7 +303,7 @@ services:
 volumes:
   app-db-data:
   mongo-db-data:
-
+  elastic-db-data:
 networks:
   traefik-public:
     # Allow setting it to false for testing

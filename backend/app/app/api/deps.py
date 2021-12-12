@@ -11,6 +11,8 @@ from app.core import security
 from app.core.config import settings
 from app.db.session import SessionLocal
 from app.db.mongo import connect
+from app.db.elasticsearch import ElasticSearchConnection
+
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -31,6 +33,12 @@ def get_mongo_db() -> Generator:
     finally:
         pass
 
+def get_elasticsearch_db() -> Generator:
+    try:
+        db = ElasticSearchConnection
+        yield db
+    finally:
+        pass
 
 def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
