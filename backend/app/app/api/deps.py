@@ -10,7 +10,6 @@ from app import crud, models, schemas
 from app.core import security
 from app.core.config import settings
 from app.db.session import SessionLocal
-from app.db.mongo import connect
 from app.db.elasticsearch import ElasticSearchConnection
 
 
@@ -26,12 +25,6 @@ def get_db() -> Generator:
     finally:
         db.close()
 
-def get_mongo_db() -> Generator:
-    try:
-        db = connect
-        yield db
-    finally:
-        pass
 
 def get_elasticsearch_db() -> Generator:
     try:

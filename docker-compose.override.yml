@@ -1,24 +1,6 @@
 version: "3.3"
 services:
 
-  mongo:
-    restart: always
-    ports:
-      - "27017:27017"
-
-  mongo-express:
-    restart: always
-    ports:
-      - "8081:8081"
-    labels:
-      - traefik.enable=true
-      - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
-      - traefik.http.routers.${STACK_NAME?Variable not set}-mongo-express.rule=Host(`mongo-express.${DOMAIN?Variable not set}`)
-      - traefik.http.services.${STACK_NAME?Variable not set}-mongo-express.loadbalancer.server.port=8081
-      - traefik.http.routers.${STACK_NAME?Variable not set}-mongo-express.middlewares=${STACK_NAME?Variable not set}-mongo-express-basicauth
-      - traefik.http.middlewares.${STACK_NAME?Variable not set}-mongo-express-basicauth.basicauth.removeheader=true
-      - traefik.http.middlewares.${STACK_NAME?Variable not set}-mongo-express-basicauth.basicauth.users=${TRAEFIK_USERS?Variable not set}
-
   zookeeper:
     ports:
       - "2181:2181"

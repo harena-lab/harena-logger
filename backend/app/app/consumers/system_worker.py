@@ -2,7 +2,6 @@ from raven import Client
 from app.core.config import settings
 from app.core.kafka_app import faust_app as app, topic, Greeting
 from app.models import SystemMessageDocument, KafkaMessageRecord
-from app.db.mongo import connect
 from app.db.elasticsearch import ElasticSearchConnection
 from fastapi import Depends
 from app.api import deps

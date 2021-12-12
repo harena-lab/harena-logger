@@ -77,49 +77,6 @@ services:
         # to disable www redirection remove the section: ${STACK_NAME?Variable not set}-www-redirect,
         - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.middlewares=${STACK_NAME?Variable not set}-www-redirect,${STACK_NAME?Variable not set}-https-redirect
 
-  mongo:
-    image: bitnami/mongodb
-    networks:
-      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
-      - default
-    env_file:
-      - .env
-    volumes:
-    - mongo-db-data:/bitnami/mongodb
-    - ./backend/app/app/db/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh
-    deploy:
-      placement:
-        constraints:
-          - node.labels.${STACK_NAME?Variable not set}.mongo-db-data == true
-
-  mongo-express:
-    image: mongo-express
-    networks:
-      - ${TRAEFIK_PUBLIC_NETWORK?Variable not set}
-      - default
-    env_file:
-      - .env
-    depends_on:
-      - mongo
-    deploy:
-      labels:
-#        - traefik.enable=true
-#        - traefik.constraint-label=${TRAEFIK_TAG?Variable not set}
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.entrypoints=http
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.middlewares=${STACK_NAME?Variable not set}-https-redirect
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.rule=Host(`mongoexpress.${DOMAIN?Variable not set}`)
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.entrypoints=https
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls=true
-#        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls.certresolver=le
-#        - traefik.http.services.${STACK_NAME?Variable not set}-mongoexpress.loadbalancer.server.port=8081
-      - traefik.enable=true
-      - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
-      - traefik.http.routers.${STACK_NAME?Variable not set}-mongo-express.rule=Host(`mongo-express.${DOMAIN?Variable not set}`)
-      - traefik.http.services.${STACK_NAME?Variable not set}-mongo-express.loadbalancer.server.port=8081
-      - traefik.http.routers.${STACK_NAME?Variable not set}-mongo-express.middlewares=${STACK_NAME?Variable not set}-mongo-express-basicauth
-      - traefik.http.middlewares.${STACK_NAME?Variable not set}-mongo-express-basicauth.basicauth.removeheader=true
-      - traefik.http.middlewares.${STACK_NAME?Variable not set}-mongo-express-basicauth.basicauth.users=${TRAEFIK_USERS?Variable not set}
-
   zookeeper:
     image: bitnami/zookeeper
     networks:
@@ -302,7 +259,6 @@ services:
 
 volumes:
   app-db-data:
-  mongo-db-data:
   elastic-db-data:
 networks:
   traefik-public:
