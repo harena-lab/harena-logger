@@ -150,15 +150,6 @@ services:
       ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD?Variable not set}
     deploy:
       labels:
-        #        - traefik.enable=true
-        #        - traefik.constraint-label=${TRAEFIK_TAG?Variable not set}
-        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.entrypoints=http
-        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-http.middlewares=${STACK_NAME?Variable not set}-https-redirect
-        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.rule=Host(`mongoexpress.${DOMAIN?Variable not set}`)
-        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.entrypoints=https
-        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls=true
-        #        - traefik.http.routers.${STACK_NAME?Variable not set}-mongoexpress-https.tls.certresolver=le
-        #        - traefik.http.services.${STACK_NAME?Variable not set}-mongoexpress.loadbalancer.server.port=8081
         - traefik.enable=true
         - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
         - traefik.http.routers.${STACK_NAME?Variable not set}-kibana.rule=Host(`kibana.${DOMAIN?Variable not set}`)
@@ -189,7 +180,6 @@ services:
     depends_on:
       - db
       - brokerkafka
-      - mongo
     env_file:
       - .env
     networks:
@@ -217,7 +207,7 @@ services:
     depends_on:
       - db
       - brokerkafka
-      - mongo
+      - elasticsearch
     env_file:
       - .env
     environment:
@@ -239,7 +229,7 @@ services:
     depends_on:
       - db
       - brokerkafka
-      - mongo
+      - elasticsearch
     env_file:
       - .env
     environment:
